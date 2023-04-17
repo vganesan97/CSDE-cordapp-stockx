@@ -1,23 +1,23 @@
 [
   {
-    "x500Name" : "CN=Alice, OU=Test Dept, O=R3, L=London, C=GB",
+    "x500Name" : "CN=Issuer, OU=Test Dept, O=R3, L=NYC, C=US",
     "cpi" : "cpi name"
   },
   {
-    "x500Name" : "CN=Bob, OU=Test Dept, O=R3, L=London, C=GB",
+    "x500Name" : "CN=Bank of Alice, OU=Test Dept, O=R3, L=NYC, C=US",
     "cpi" : "cpi name"
   },
   {
-    "x500Name" : "CN=Charlie, OU=Test Dept, O=R3, L=London, C=GB",
+    "x500Name" : "CN=Bank of Bob, OU=Test Dept, O=R3, L=NYC, C=US",
     "cpi" : "cpi name"
   },
   {
-    "x500Name" : "CN=Dave, OU=Test Dept, O=R3, L=London, C=GB",
+    "x500Name" : "CN=Bank of Charlie, OU=Test Dept, O=R3, L=NYC, C=US",
     "cpi" : "cpi name"
   },
   {
-    "x500Name" : "CN=NotaryRep1, OU=Test Dept, O=R3, L=London, C=GB",
+    "x500Name" : "CN=NotaryRep1, OU=Test Dept, O=R3, L=NYC, C=US",
     "cpi" : "CSDE Notary Server CPI",
-    "serviceX500Name": "CN=NotaryService, OU=Test Dept, O=R3, L=London, C=GB"
+    "serviceX500Name": "CN=NotaryService, OU=Test Dept, O=R3, L=NYC, C=US"
   }
 ]
