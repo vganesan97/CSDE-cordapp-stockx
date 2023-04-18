@@ -44,7 +44,7 @@ class IssueDigitalCurrencyFlow: ClientStartableFlow {
     @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
 
-        log.info("IssueDigitalCurrency.call() called")
+        log.info("${this::class.java.enclosingClass}.call() called")
 
         try {
             val flowArgs = requestBody.getRequestBodyAs(jsonMarshallingService, IssueDigitalCurrency::class.java)
@@ -59,7 +59,7 @@ class IssueDigitalCurrencyFlow: ClientStartableFlow {
 
             val notary = notaryLookup.notaryServices.single()
 
-            val txBuilder = ledgerService.getTransactionBuilder()
+            val txBuilder = ledgerService.transactionBuilder
                 .setNotary(Party(notary.name, notary.publicKey))
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
                 .addOutputState(digitalCurrency)

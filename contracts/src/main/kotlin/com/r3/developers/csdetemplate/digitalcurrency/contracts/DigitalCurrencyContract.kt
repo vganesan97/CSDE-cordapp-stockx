@@ -15,15 +15,30 @@ class DigitalCurrencyContract: Contract {
     override fun verify(transaction: UtxoLedgerTransaction) {
         val command = transaction.commands.singleOrNull() ?: throw CordaRuntimeException("Requires a single command")
 
-        "The output state should have two and only two participants." using {
-            val output = transaction.outputContractStates.first() as DigitalCurrency
-            output.participants.size==2
-        }
-
         when(command) {
             is Issue -> {
                 "When command is Issue there should be no input states." using (transaction.inputContractStates.isEmpty())
                 "When command is Issue there should be one and only one output state." using (transaction.outputContractStates.size == 1)
+
+                "The output state should have two and only two participants." using {
+                    val output = transaction.outputContractStates.first() as DigitalCurrency
+                    output.participants.size==2
+                }
+            }
+            is Transfer -> {
+                "When command is Transfer there should be at least one input state." using (transaction.inputContractStates.size >= 1)
+                "When command is Transfer there should be at least one output state." using (transaction.outputContractStates.size >= 1)
+
+                val sentDigitalCurrency = transaction.inputContractStates as List<DigitalCurrency>
+                val receivedDigitalCurrency = transaction.outputContractStates as List<DigitalCurrency>
+                val sentAmount = sentDigitalCurrency.sumOf { it.quantity }
+                val receivedAmount = receivedDigitalCurrency.sumOf { it.quantity }
+                "When command is Transfer the sent and received amount should be the same total amount." using (
+                    sentAmount == receivedAmount)
+
+                "When command is Transfer there must be exactly two participants." using (
+                        receivedDigitalCurrency.all { it.participants.size == 2 })
+                // additional checks for sender/receiver being the specific participants
             }
             else -> {
                 throw CordaRuntimeException("Command not allowed.")

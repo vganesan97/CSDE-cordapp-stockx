@@ -16,7 +16,7 @@ import net.corda.v5.ledger.utxo.transaction.UtxoSignedTransaction
 import org.slf4j.LoggerFactory
 
 @InitiatingFlow(protocol = "finalize-digital-currency-protocol")
-class FinalizeDigitalCurrencySubFlow(private val signedTransaction: UtxoSignedTransaction, private val holder: MemberX500Name): SubFlow<String> {
+class FinalizeDigitalCurrencySubFlow(private val signedTransaction: UtxoSignedTransaction, private val counterparty: MemberX500Name): SubFlow<String> {
     private companion object {
         val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
     }
@@ -31,7 +31,7 @@ class FinalizeDigitalCurrencySubFlow(private val signedTransaction: UtxoSignedTr
     override fun call(): String {
         log.info("FinalizeChatFlow.call() called")
 
-        val session = flowMessaging.initiateFlow(holder)
+        val session = flowMessaging.initiateFlow(counterparty)
 
         return try {
             val finalizedSignedTransaction = ledgerService.finalize(
@@ -63,8 +63,9 @@ class FinalizeDigitalCurrencyResponderFlow: ResponderFlow {
 
         try {
             val finalizedSignedTransaction = ledgerService.receiveFinality(session) { ledgerTransaction ->
-                val state = ledgerTransaction.getOutputStates(DigitalCurrency::class.java).singleOrNull() ?:
-                    throw CordaRuntimeException("Failed verification - transaction did not have exactly one output DigitalCurrency.")
+                //this pattern only works for linear states, split this out by flow
+//                val state = ledgerTransaction.getOutputStates(DigitalCurrency::class.java).singleOrNull() ?:
+//                    throw CordaRuntimeException("Failed verification - transaction did not have exactly one output DigitalCurrency.")
 
                 log.info("Verified the transaction- ${ledgerTransaction.id}")
             }

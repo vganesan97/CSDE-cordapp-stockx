@@ -15,4 +15,13 @@ data class DigitalCurrency(
         return participants
     }
 
+    fun sendAmount(send: Int) =
+        copy(quantity = send)
+
+    fun sendTo(newHolder: Party) =
+        copy(holder = newHolder)
+
+    fun sendAmountTo(send: Int, newHolder: Party) =
+        copy(quantity = send, holder = newHolder)
+
 }
