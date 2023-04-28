@@ -10,7 +10,7 @@ class DigitalCurrencyContract: Contract {
 
     class Issue: Command
     class Transfer: Command
-    class Burn: Command
+    class Withdraw: Command
 
     override fun verify(transaction: UtxoLedgerTransaction) {
         val command = transaction.commands.singleOrNull() ?: throw CordaRuntimeException("Requires a single command")
@@ -39,6 +39,20 @@ class DigitalCurrencyContract: Contract {
                 "When command is Transfer there must be exactly two participants." using (
                         receivedDigitalCurrency.all { it.participants.size == 2 })
                 // additional checks for sender/receiver being the specific participants
+            }
+            is Withdraw -> {
+                "When command is Withdraw there should be at least one input state." using (transaction.inputContractStates.size >= 1)
+                "When command is Withdraw there should be no more than one output state." using (transaction.outputContractStates.size < 2)
+
+                val sentDigitalCurrency = transaction.inputContractStates as List<DigitalCurrency>
+                val remainingDigitalCurrency = transaction.outputContractStates as List<DigitalCurrency>
+                val sentAmount = sentDigitalCurrency.sumOf { it.quantity }
+                val remainingAmount = remainingDigitalCurrency.sumOf { it.quantity }
+                "When command is Withdraw the sent amount should be greater than the remaining amount." using (
+                        sentAmount > remainingAmount)
+
+                "When command is Withdraw there must be exactly two participants." using (
+                        remainingDigitalCurrency.all { it.participants.size == 2 })
             }
             else -> {
                 throw CordaRuntimeException("Command not allowed.")

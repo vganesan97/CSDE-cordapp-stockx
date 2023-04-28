@@ -480,6 +480,81 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Start Withdrawl Digital Currency Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-withdrawDigitalCurrency\")",
+							"pm.environment.set(\"clientRequestIdPrevious-withdrawDigitalCurrency\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-withdrawDigitalCurrency\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-withdrawDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.WithdrawDigitalCurrencyFlow\",\n    \"requestBody\": {\n        \"quantity\":30\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Transfer Digital Currency Flow Status Copy",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}/{{clientRequestIdPrevious-withdrawDigitalCurrency}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}",
+						"{{clientRequestIdPrevious-withdrawDigitalCurrency}}"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"auth": {

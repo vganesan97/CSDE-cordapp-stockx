@@ -10,19 +10,17 @@ import net.corda.v5.application.messaging.FlowMessaging
 import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
-import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.common.NotaryLookup
 import net.corda.v5.ledger.common.Party
-import net.corda.v5.ledger.utxo.StateAndRef
 import net.corda.v5.ledger.utxo.UtxoLedgerService
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 
-data class TransferDigitalCurrency(val quantity: Int, val toHolder: String)
+data class WithdrawDigitalCurrency(val quantity: Int)
 
-@InitiatingFlow(protocol = "finalize-transfer-digital-currency-protocol")
-class TransferDigitalCurrencyFlow: ClientStartableFlow {
+@InitiatingFlow(protocol = "finalize-withdraw-digital-currency-protocol")
+class WithdrawDigitalCurrencyFlow: ClientStartableFlow {
     private companion object {
         val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
     }
@@ -39,42 +37,33 @@ class TransferDigitalCurrencyFlow: ClientStartableFlow {
     @CordaInject
     lateinit var ledgerService: UtxoLedgerService
 
-    @CordaInject
-    lateinit var flowMessaging: FlowMessaging
-
     @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
         log.info("${this::class.java.enclosingClass}.call() called")
 
         try {
-            val flowArgs = requestBody.getRequestBodyAs(jsonMarshallingService, TransferDigitalCurrency::class.java)
+            val flowArgs = requestBody.getRequestBodyAs(jsonMarshallingService, WithdrawDigitalCurrency::class.java)
 
-            val fromHolder = memberLookup.myInfo()
-
-            if (flowArgs.toHolder == fromHolder.name.toString()) {
-                throw CordaRuntimeException("Cannot transfer money to self.")
+            if(flowArgs.quantity <= 0) {
+                throw CordaRuntimeException("Must withdrawl a positive amount of currency.")
             }
 
-            val toHolder = memberLookup.lookup(MemberX500Name.parse(flowArgs.toHolder)) ?:
-                throw CordaRuntimeException("MemberLookup can't find toHolder specified in flow arguments.")
+            val fromHolder = memberLookup.myInfo()
 
             val availableTokens = ledgerService.findUnconsumedStatesByType(DigitalCurrency::class.java)
 
             val coinSelection = CoinSelection()
-            val (amountSpent, currencyToSpend) = coinSelection.selectTokens(flowArgs.quantity, availableTokens)
+            val (amountSpent, currencyToWithdraw) = coinSelection.selectTokens(flowArgs.quantity, availableTokens)
 
-            // Send the rest of the other coins to receiver
-            // Ignoring opportunity to merge currency
             val fromParty = Party(fromHolder.name, fromHolder.ledgerKeys.first())
-            val toParty = Party(toHolder.name, toHolder.ledgerKeys.first())
-            val spentCurrency = currencyToSpend.map { it.state.contractState.sendTo(toParty) }.toMutableList()
 
             // Send change back to sender
-            if(amountSpent > flowArgs.quantity) {
+            val change = if (amountSpent > flowArgs.quantity) {
                 val overspend = amountSpent - flowArgs.quantity
-                val change = spentCurrency.removeLast() //blindly turn last token into change
-                spentCurrency.add(change.sendAmountTo(overspend, fromParty)) //change stays with sender
-                spentCurrency.add(change.sendAmountTo(change.quantity-overspend, toParty))
+                val lastDigitalCurrency = currencyToWithdraw.last() //blindly turn last token into change
+                lastDigitalCurrency.state.contractState.sendAmountTo(overspend, fromParty) //change stays with sender
+            } else {
+                null
             }
 
             val notary = notaryLookup.notaryServices.single()
@@ -82,32 +71,30 @@ class TransferDigitalCurrencyFlow: ClientStartableFlow {
             val txBuilder = ledgerService.transactionBuilder
                 .setNotary(Party(notary.name, notary.publicKey))
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
-                .addInputStates(currencyToSpend.map { it.ref })
-                .addOutputStates(spentCurrency)
-                .addCommand(DigitalCurrencyContract.Transfer())
-                .addSignatories(fromParty.owningKey, toParty.owningKey) // issuer does not sign
+                .addInputStates(currencyToWithdraw.map { it.ref })
+                .addOutputStates(change)
+                .addCommand(DigitalCurrencyContract.Withdraw())
+                .addSignatories(fromParty.owningKey) // issuer does not sign
 
             val signedTransaction = txBuilder.toSignedTransaction()
 
-            val session = flowMessaging.initiateFlow(toHolder.name)
-
             val finalizedSignedTransaction = ledgerService.finalize(
                 signedTransaction,
-                listOf(session)
+                listOf()
             )
+
             return finalizedSignedTransaction.id.toString().also {
                 log.info("Successful ${signedTransaction.commands.first()} with response: $it")
             }
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             log.warn("Failed to process transfer digital currency for request body '$requestBody' with exception: '${e.message}'")
             throw e
         }
     }
 }
 
-@InitiatedBy(protocol = "finalize-transfer-digital-currency-protocol")
-class FinalizeTransferDigitalCurrencyResponderFlow: ResponderFlow {
+@InitiatedBy(protocol = "finalize-withdraw-digital-currency-protocol")
+class FinalizeWithdrawDigitalCurrencyResponderFlow: ResponderFlow {
     private companion object {
         val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
     }
@@ -121,9 +108,6 @@ class FinalizeTransferDigitalCurrencyResponderFlow: ResponderFlow {
 
         try {
             val finalizedSignedTransaction = ledgerService.receiveFinality(session) { ledgerTransaction ->
-                val state = ledgerTransaction.getOutputStates(DigitalCurrency::class.java).first() ?:
-                    throw CordaRuntimeException("Failed verification - transaction did not have at least one output DigitalCurrency.")
-
                 log.info("Verified the transaction- ${ledgerTransaction.id}")
             }
             log.info("Finished transfer digital currency responder flow - ${finalizedSignedTransaction.id}")
@@ -137,11 +121,10 @@ class FinalizeTransferDigitalCurrencyResponderFlow: ResponderFlow {
 
 /*
 {
-    "clientRequestId": "transfer-1",
-    "flowClassName": "com.r3.developers.csdetemplate.digitalcurrency.workflows.TransferDigitalCurrencyFlow",
+    "clientRequestId": "withdrawal-1",
+    "flowClassName": "com.r3.developers.csdetemplate.digitalcurrency.workflows.WithdrawDigitalCurrencyFlow",
     "requestBody": {
-        "quantity":30,
-        "toHolder":"CN=Bank of Bob, OU=Test Dept, O=R3, L=NYC, C=US"
+        "quantity":30
     }
 }
  */
