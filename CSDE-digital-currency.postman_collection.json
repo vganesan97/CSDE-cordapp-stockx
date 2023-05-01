@@ -236,6 +236,33 @@
 			]
 		},
 		{
+			"name": "Hello Cluster",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8888/api/v1/hello?addressee=World",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"hello"
+					],
+					"query": [
+						{
+							"key": "addressee",
+							"value": "World"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "List Virtual Nodes",
 			"request": {
 				"method": "GET",
@@ -482,7 +509,7 @@
 			"response": []
 		},
 		{
-			"name": "Start Withdrawl Digital Currency Flow",
+			"name": "Start Withdraw Digital Currency Flow",
 			"event": [
 				{
 					"listen": "test",
@@ -527,7 +554,7 @@
 			"response": []
 		},
 		{
-			"name": "Get Transfer Digital Currency Flow Status Copy",
+			"name": "Get Withdraw Digital Currency Flow Status",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -562,7 +589,7 @@
 		"basic": [
 			{
 				"key": "password",
-				"value": "admin",
+				"value": "{{cluster_admin_password}}",
 				"type": "string"
 			},
 			{
