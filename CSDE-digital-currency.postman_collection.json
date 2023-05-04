@@ -1,0 +1,622 @@
+{
+	"info": {
+		"_postman_id": "983e9a3d-573c-4f2c-aed3-24d4e2a9d162",
+		"name": "CSDE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "118271"
+	},
+	"item": [
+		{
+			"name": "Chat",
+			"item": [
+				{
+					"name": "Start New Chat Flow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clientRequestId\": \"{{clientRequestId-createChat}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.utxoexample.workflows.CreateNewChatFlow\",\n    \"requestBody\": {\n        \"chatName\":\"Chat with Bob\",\n        \"otherMember\":\"CN=Bob, OU=Test Dept, O=R3, L=London, C=GB\",\n        \"message\": \"Hello Bob\"\n        }\n}"
+						},
+						"url": {
+							"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"flow",
+								"{{holdingIdentityShortHash-Alice}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get New Chat Flow Status",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}/{{clientRequestId-createChat}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"flow",
+								"{{holdingIdentityShortHash-Alice}}",
+								"{{clientRequestId-createChat}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Chats Flow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clientRequestId\": \"{{clientRequestId-listChats}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.utxoexample.workflows.ListChatsFlow\",\n    \"requestBody\": {}\n}"
+						},
+						"url": {
+							"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Bob}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"flow",
+								"{{holdingIdentityShortHash-Bob}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Chats Flow Status",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Bob}}/{{clientRequestId-listChats}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"flow",
+								"{{holdingIdentityShortHash-Bob}}",
+								"{{clientRequestId-listChats}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Chats Flow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clientRequestId\": \"{{clientRequestId-getChats}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.utxoexample.workflows.GetChatFlow\",\n    \"requestBody\": {\n        \"id\":\"{{chatUuid}}\",\n        \"numberOfRecords\":4\n    }\n}"
+						},
+						"url": {
+							"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Bob}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"flow",
+								"{{holdingIdentityShortHash-Bob}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Chats Flow Status",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Bob}}/{{clientRequestId-getChats}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"flow",
+								"{{holdingIdentityShortHash-Bob}}",
+								"{{clientRequestId-getChats}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Chat Flow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clientRequestId\": \"{{clientRequestId-updateChat}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.utxoexample.workflows.UpdateChatFlow\",\n    \"requestBody\": {\n        \"id\":\"{{chatUuid}}\",\n        \"message\": \"How are you today?\"\n    }\n\n}"
+						},
+						"url": {
+							"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Bob}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"flow",
+								"{{holdingIdentityShortHash-Bob}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Update Chat Flow Status",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Bob}}/{{clientRequestId-updateChat}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"flow",
+								"{{holdingIdentityShortHash-Bob}}",
+								"{{clientRequestId-updateChat}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Hello Cluster",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8888/api/v1/hello?addressee=World",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"hello"
+					],
+					"query": [
+						{
+							"key": "addressee",
+							"value": "World"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Virtual Nodes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8888/api/v1/virtualnode",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"virtualnode"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Issue Digital Currency Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-issueDigitalCurrency\")",
+							"pm.environment.set(\"clientRequestIdPrevious-issueDigitalCurrency\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-issueDigitalCurrency\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueDigitalCurrencyFlow\",\n    \"requestBody\": {\n        \"quantity\":200,\n        \"holder\":\"CN=Bank of Alice, OU=Test Dept, O=R3, L=NYC, C=US\"\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Issuer}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Issue Digital Currency Flow Status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}/{{clientRequestIdPrevious-issueDigitalCurrency}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Issuer}}",
+						"{{clientRequestIdPrevious-issueDigitalCurrency}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Digital Currency Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-listDigitalCurrency\")",
+							"pm.environment.set(\"clientRequestIdPrevious-listDigitalCurrency\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-listDigitalCurrency\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-listDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.ListDigitalCurrencyFlow\",\n    \"requestBody\": {}\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Digital Currency Flow Status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}/{{clientRequestIdPrevious-listDigitalCurrency}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}",
+						"{{clientRequestIdPrevious-listDigitalCurrency}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Transfer Digital Currency Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-transferDigitalCurrency\")",
+							"pm.environment.set(\"clientRequestIdPrevious-transferDigitalCurrency\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-transferDigitalCurrency\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-transferDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.TransferDigitalCurrencyFlow\",\n    \"requestBody\": {\n        \"quantity\":20,\n        \"toHolder\":\"CN=Bank of Bob, OU=Test Dept, O=R3, L=NYC, C=US\"\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Transfer Digital Currency Flow Status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}/{{clientRequestIdPrevious-transferDigitalCurrency}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}",
+						"{{clientRequestIdPrevious-transferDigitalCurrency}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Withdraw Digital Currency Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-withdrawDigitalCurrency\")",
+							"pm.environment.set(\"clientRequestIdPrevious-withdrawDigitalCurrency\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-withdrawDigitalCurrency\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-withdrawDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.WithdrawDigitalCurrencyFlow\",\n    \"requestBody\": {\n        \"quantity\":30\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Withdraw Digital Currency Flow Status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}/{{clientRequestIdPrevious-withdrawDigitalCurrency}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}",
+						"{{clientRequestIdPrevious-withdrawDigitalCurrency}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "{{cluster_admin_password}}",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "admin",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
