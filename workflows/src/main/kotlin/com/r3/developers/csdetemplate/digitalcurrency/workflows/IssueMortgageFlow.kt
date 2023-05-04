@@ -22,6 +22,7 @@ class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
         val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
     }
 
+    @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
         log.info("${this::class.java.enclosingClass}.call() called")
         try {
