@@ -10,7 +10,6 @@ import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.ledger.common.NotaryLookup
-import net.corda.v5.ledger.common.Party
 import net.corda.v5.ledger.utxo.UtxoLedgerService
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -54,26 +53,24 @@ class WithdrawDigitalCurrencyFlow: ClientStartableFlow {
             val coinSelection = CoinSelection()
             val (amountSpent, currencyToWithdraw) = coinSelection.selectTokens(flowArgs.quantity, availableTokens)
 
-            val fromParty = Party(fromHolder.name, fromHolder.ledgerKeys.first())
-
             // Send change back to sender
             val change = if (amountSpent > flowArgs.quantity) {
                 val overspend = amountSpent - flowArgs.quantity
                 val lastDigitalCurrency = currencyToWithdraw.last() //blindly turn last token into change
-                lastDigitalCurrency.state.contractState.sendAmountTo(overspend, fromParty) //change stays with sender
+                lastDigitalCurrency.state.contractState.sendAmountTo(overspend, fromHolder.name) //change stays with sender
             } else {
                 null
             }
 
             val notary = notaryLookup.notaryServices.single()
 
-            val txBuilder = ledgerService.transactionBuilder
-                .setNotary(Party(notary.name, notary.publicKey))
+            val txBuilder = ledgerService.createTransactionBuilder()
+                .setNotary(notary.name)
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
                 .addInputStates(currencyToWithdraw.map { it.ref })
                 .addOutputStates(change)
                 .addCommand(DigitalCurrencyContract.Withdraw())
-                .addSignatories(fromParty.owningKey) // issuer does not sign
+                .addSignatories(fromHolder.ledgerKeys.first()) // issuer does not sign
 
             val signedTransaction = txBuilder.toSignedTransaction()
 
@@ -82,7 +79,7 @@ class WithdrawDigitalCurrencyFlow: ClientStartableFlow {
                 listOf()
             )
 
-            return finalizedSignedTransaction.id.toString().also {
+            return finalizedSignedTransaction.transaction.id.toString().also {
                 log.info("Successful ${signedTransaction.commands.first()} with response: $it")
             }
         } catch (e: Exception) {
@@ -109,7 +106,7 @@ class FinalizeWithdrawDigitalCurrencyResponderFlow: ResponderFlow {
             val finalizedSignedTransaction = ledgerService.receiveFinality(session) { ledgerTransaction ->
                 log.info("Verified the transaction- ${ledgerTransaction.id}")
             }
-            log.info("Finished transfer digital currency responder flow - ${finalizedSignedTransaction.id}")
+            log.info("Finished transfer digital currency responder flow - ${finalizedSignedTransaction.transaction.id}")
         }
         catch (e: Exception) {
             log.warn("Transfer DigitalCurrency responder flow failed with exception", e)

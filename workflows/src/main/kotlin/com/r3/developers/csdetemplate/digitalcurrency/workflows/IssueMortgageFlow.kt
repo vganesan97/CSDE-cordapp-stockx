@@ -7,7 +7,6 @@ import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
-import net.corda.v5.ledger.common.Party
 import net.corda.v5.ledger.utxo.UtxoLedgerService
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -33,14 +32,14 @@ class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
             throw CordaRuntimeException("MemberLookup can't find owner specified in flow arguments.")
 
             val mortgage = Mortgage(flowArgs.address,
-                Party(owner.name, owner.ledgerKeys.first()),
+                owner.name,
                 flowArgs.interestRate,
                 participants = listOf(myInfo.ledgerKeys.first(), owner.ledgerKeys.first()))
 
             val notary = notaryLookup.notaryServices.single()
 
-            val txBuilder = ledgerService.transactionBuilder
-                .setNotary(Party(notary.name, notary.publicKey))
+            val txBuilder = ledgerService.createTransactionBuilder()
+                .setNotary(notary.name)
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
                 .addOutputState(mortgage)
                 .addCommand(MortgageContract.Issue())
@@ -54,7 +53,7 @@ class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
                 signedTransaction,
                 listOf(session)
             )
-            return finalizedSignedTransaction.id.toString().also {
+            return finalizedSignedTransaction.transaction.id.toString().also {
                 log.info("Successful ${signedTransaction.commands.first()} with response: $it")
             }
         }
@@ -85,7 +84,7 @@ class FinalizeIssueMortgageResponderFlow: ResponderFlow {
 
                 log.info("Verified the transaction- ${ledgerTransaction.id}")
             }
-            log.info("Finished issue mortgage responder flow - ${finalizedSignedTransaction.id}")
+            log.info("Finished issue mortgage responder flow - ${finalizedSignedTransaction.transaction.id}")
         }
         catch (e: Exception) {
             log.warn("Issue Mortgage responder flow failed with exception", e)

@@ -11,7 +11,6 @@ import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.common.NotaryLookup
-import net.corda.v5.ledger.common.Party
 import net.corda.v5.ledger.utxo.UtxoLedgerService
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -54,13 +53,13 @@ class IssueDigitalCurrencyFlow: ClientStartableFlow {
                 throw CordaRuntimeException("MemberLookup can't find holder specified in flow arguments.")
 
             val digitalCurrency = DigitalCurrency(flowArgs.quantity,
-                Party(holder.name, holder.ledgerKeys.first()),
+                holder.name,
                 participants = listOf(myInfo.ledgerKeys.first(), holder.ledgerKeys.first()))
 
             val notary = notaryLookup.notaryServices.single()
 
-            val txBuilder = ledgerService.transactionBuilder
-                .setNotary(Party(notary.name, notary.publicKey))
+            val txBuilder = ledgerService.createTransactionBuilder()
+                .setNotary(notary.name)
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
                 .addOutputState(digitalCurrency)
                 .addCommand(DigitalCurrencyContract.Issue())
@@ -74,7 +73,7 @@ class IssueDigitalCurrencyFlow: ClientStartableFlow {
                 signedTransaction,
                 listOf(session)
             )
-            return finalizedSignedTransaction.id.toString().also {
+            return finalizedSignedTransaction.transaction.id.toString().also {
                 log.info("Successful ${signedTransaction.commands.first()} with response: $it")
             }
         }
@@ -105,7 +104,7 @@ class FinalizeIssueDigitalCurrencyResponderFlow: ResponderFlow {
 
                 log.info("Verified the transaction- ${ledgerTransaction.id}")
             }
-            log.info("Finished issue digital currency responder flow - ${finalizedSignedTransaction.id}")
+            log.info("Finished issue digital currency responder flow - ${finalizedSignedTransaction.transaction.id}")
         }
         catch (e: Exception) {
             log.warn("Issue DigitalCurrency responder flow failed with exception", e)

@@ -12,8 +12,6 @@ import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.common.NotaryLookup
-import net.corda.v5.ledger.common.Party
-import net.corda.v5.ledger.utxo.StateAndRef
 import net.corda.v5.ledger.utxo.UtxoLedgerService
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -65,27 +63,25 @@ class TransferDigitalCurrencyFlow: ClientStartableFlow {
 
             // Send the rest of the other coins to receiver
             // Ignoring opportunity to merge currency
-            val fromParty = Party(fromHolder.name, fromHolder.ledgerKeys.first())
-            val toParty = Party(toHolder.name, toHolder.ledgerKeys.first())
-            val spentCurrency = currencyToSpend.map { it.state.contractState.sendTo(toParty) }.toMutableList()
+            val spentCurrency = currencyToSpend.map { it.state.contractState.sendTo(toHolder.name) }.toMutableList()
 
             // Send change back to sender
             if(amountSpent > flowArgs.quantity) {
                 val overspend = amountSpent - flowArgs.quantity
                 val change = spentCurrency.removeLast() //blindly turn last token into change
-                spentCurrency.add(change.sendAmountTo(overspend, fromParty)) //change stays with sender
-                spentCurrency.add(change.sendAmountTo(change.quantity-overspend, toParty))
+                spentCurrency.add(change.sendAmountTo(overspend, fromHolder.name)) //change stays with sender
+                spentCurrency.add(change.sendAmountTo(change.quantity-overspend, toHolder.name))
             }
 
             val notary = notaryLookup.notaryServices.single()
 
-            val txBuilder = ledgerService.transactionBuilder
-                .setNotary(Party(notary.name, notary.publicKey))
+            val txBuilder = ledgerService.createTransactionBuilder()
+                .setNotary(notary.name)
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
                 .addInputStates(currencyToSpend.map { it.ref })
                 .addOutputStates(spentCurrency)
                 .addCommand(DigitalCurrencyContract.Transfer())
-                .addSignatories(fromParty.owningKey, toParty.owningKey) // issuer does not sign
+                .addSignatories(fromHolder.ledgerKeys.first(), toHolder.ledgerKeys.first()) // issuer does not sign
 
             val signedTransaction = txBuilder.toSignedTransaction()
 
@@ -95,7 +91,7 @@ class TransferDigitalCurrencyFlow: ClientStartableFlow {
                 signedTransaction,
                 listOf(session)
             )
-            return finalizedSignedTransaction.id.toString().also {
+            return finalizedSignedTransaction.transaction.id.toString().also {
                 log.info("Successful ${signedTransaction.commands.first()} with response: $it")
             }
         }
@@ -126,7 +122,7 @@ class FinalizeTransferDigitalCurrencyResponderFlow: ResponderFlow {
 
                 log.info("Verified the transaction- ${ledgerTransaction.id}")
             }
-            log.info("Finished transfer digital currency responder flow - ${finalizedSignedTransaction.id}")
+            log.info("Finished transfer digital currency responder flow - ${finalizedSignedTransaction.transaction.id}")
         }
         catch (e: Exception) {
             log.warn("Transfer DigitalCurrency responder flow failed with exception", e)
