@@ -32,7 +32,7 @@ class ListDigitalCurrencyFlow : ClientStartableFlow {
         val results = states.map {
             DigitalCurrencyStateResults(
                 it.state.contractState.quantity,
-                it.state.contractState.holder.name) }
+                it.state.contractState.holder) }
 
         return jsonMarshallingService.format(results)
     }
