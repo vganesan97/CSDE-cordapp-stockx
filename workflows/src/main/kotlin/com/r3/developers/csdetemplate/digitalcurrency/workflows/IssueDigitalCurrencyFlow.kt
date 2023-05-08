@@ -3,50 +3,25 @@ package com.r3.developers.csdetemplate.digitalcurrency.workflows
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.DigitalCurrencyContract
 import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import net.corda.v5.application.flows.*
-import net.corda.v5.application.marshalling.JsonMarshallingService
-import net.corda.v5.application.membership.MemberLookup
-import net.corda.v5.application.messaging.FlowMessaging
 import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
-import net.corda.v5.ledger.common.NotaryLookup
-import net.corda.v5.ledger.utxo.UtxoLedgerService
-import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 
 data class IssueDigitalCurrency(val quantity: Int, val holder: String)
 
 @InitiatingFlow(protocol = "finalize-issue-digital-currency-protocol")
-class IssueDigitalCurrencyFlow: ClientStartableFlow {
-
-    private companion object {
-        val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
-    }
-
-    @CordaInject
-    lateinit var jsonMarshallingService: JsonMarshallingService
-
-    @CordaInject
-    lateinit var memberLookup: MemberLookup
-
-    @CordaInject
-    lateinit var notaryLookup: NotaryLookup
-
-    @CordaInject
-    lateinit var ledgerService: UtxoLedgerService
-
-    @CordaInject
-    lateinit var flowMessaging: FlowMessaging
+class IssueDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {
 
     @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
 
-        log.info("${this::class.java.enclosingClass}.call() called")
+        logger.info("${this::class.java.enclosingClass}.call() called")
 
         try {
-            val flowArgs = requestBody.getRequestBodyAs(jsonMarshallingService, IssueDigitalCurrency::class.java)
+            val flowArgs = requestBody.getRequestBodyAs(json, IssueDigitalCurrency::class.java)
 
             val myInfo = memberLookup.myInfo()
             val holder = memberLookup.lookup(MemberX500Name.parse(flowArgs.holder)) ?:
@@ -74,40 +49,34 @@ class IssueDigitalCurrencyFlow: ClientStartableFlow {
                 listOf(session)
             )
             return finalizedSignedTransaction.transaction.id.toString().also {
-                log.info("Successful ${signedTransaction.commands.first()} with response: $it")
+                logger.info("Successful ${signedTransaction.commands.first()} with response: $it")
             }
         }
         catch (e: Exception) {
-            log.warn("Failed to process issue digital currency for request body '$requestBody' with exception: '${e.message}'")
+            logger.warn("Failed to process issue digital currency for request body '$requestBody' with exception: '${e.message}'")
             throw e
         }
     }
 }
 
 @InitiatedBy(protocol = "finalize-issue-digital-currency-protocol")
-class FinalizeIssueDigitalCurrencyResponderFlow: ResponderFlow {
-    private companion object {
-        val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
-    }
-
-    @CordaInject
-    lateinit var ledgerService: UtxoLedgerService
+class FinalizeIssueDigitalCurrencyResponderFlow: AbstractFlow(), ResponderFlow {
 
     @Suspendable
     override fun call(session: FlowSession) {
-        log.info("${this::class.java.enclosingClass}.call() called")
+        logger.info("${this::class.java.enclosingClass}.call() called")
 
         try {
             val finalizedSignedTransaction = ledgerService.receiveFinality(session) { ledgerTransaction ->
                 val state = ledgerTransaction.getOutputStates(DigitalCurrency::class.java).singleOrNull() ?:
                 throw CordaRuntimeException("Failed verification - transaction did not have exactly one output DigitalCurrency.")
 
-                log.info("Verified the transaction- ${ledgerTransaction.id}")
+                logger.info("Verified the transaction- ${ledgerTransaction.id}")
             }
-            log.info("Finished issue digital currency responder flow - ${finalizedSignedTransaction.transaction.id}")
+            logger.info("Finished issue digital currency responder flow - ${finalizedSignedTransaction.transaction.id}")
         }
         catch (e: Exception) {
-            log.warn("Issue DigitalCurrency responder flow failed with exception", e)
+            logger.warn("Issue DigitalCurrency responder flow failed with exception", e)
             throw e
         }
     }

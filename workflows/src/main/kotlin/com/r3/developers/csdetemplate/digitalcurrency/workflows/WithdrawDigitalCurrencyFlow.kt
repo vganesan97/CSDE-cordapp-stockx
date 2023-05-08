@@ -4,43 +4,23 @@ import com.r3.developers.csdetemplate.digitalcurrency.contracts.DigitalCurrencyC
 import com.r3.developers.csdetemplate.digitalcurrency.helpers.CoinSelection
 import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import net.corda.v5.application.flows.*
-import net.corda.v5.application.marshalling.JsonMarshallingService
-import net.corda.v5.application.membership.MemberLookup
 import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
-import net.corda.v5.ledger.common.NotaryLookup
-import net.corda.v5.ledger.utxo.UtxoLedgerService
-import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 
 data class WithdrawDigitalCurrency(val quantity: Int)
 
 @InitiatingFlow(protocol = "finalize-withdraw-digital-currency-protocol")
-class WithdrawDigitalCurrencyFlow: ClientStartableFlow {
-    private companion object {
-        val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
-    }
-
-    @CordaInject
-    lateinit var jsonMarshallingService: JsonMarshallingService
-
-    @CordaInject
-    lateinit var memberLookup: MemberLookup
-
-    @CordaInject
-    lateinit var notaryLookup: NotaryLookup
-
-    @CordaInject
-    lateinit var ledgerService: UtxoLedgerService
+class WithdrawDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {
 
     @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
-        log.info("${this::class.java.enclosingClass}.call() called")
+        logger.info("${this::class.java.enclosingClass}.call() called")
 
         try {
-            val flowArgs = requestBody.getRequestBodyAs(jsonMarshallingService, WithdrawDigitalCurrency::class.java)
+            val flowArgs = requestBody.getRequestBodyAs(json, WithdrawDigitalCurrency::class.java)
 
             if(flowArgs.quantity <= 0) {
                 throw CordaRuntimeException("Must withdrawl a positive amount of currency.")
@@ -80,36 +60,30 @@ class WithdrawDigitalCurrencyFlow: ClientStartableFlow {
             )
 
             return finalizedSignedTransaction.transaction.id.toString().also {
-                log.info("Successful ${signedTransaction.commands.first()} with response: $it")
+                logger.info("Successful ${signedTransaction.commands.first()} with response: $it")
             }
         } catch (e: Exception) {
-            log.warn("Failed to process transfer digital currency for request body '$requestBody' with exception: '${e.message}'")
+            logger.warn("Failed to process transfer digital currency for request body '$requestBody' with exception: '${e.message}'")
             throw e
         }
     }
 }
 
 @InitiatedBy(protocol = "finalize-withdraw-digital-currency-protocol")
-class FinalizeWithdrawDigitalCurrencyResponderFlow: ResponderFlow {
-    private companion object {
-        val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
-    }
-
-    @CordaInject
-    lateinit var ledgerService: UtxoLedgerService
+class FinalizeWithdrawDigitalCurrencyResponderFlow: AbstractFlow(), ResponderFlow {
 
     @Suspendable
     override fun call(session: FlowSession) {
-        log.info("${this::class.java.enclosingClass}.call() called")
+        logger.info("${this::class.java.enclosingClass}.call() called")
 
         try {
             val finalizedSignedTransaction = ledgerService.receiveFinality(session) { ledgerTransaction ->
-                log.info("Verified the transaction- ${ledgerTransaction.id}")
+                logger.info("Verified the transaction- ${ledgerTransaction.id}")
             }
-            log.info("Finished transfer digital currency responder flow - ${finalizedSignedTransaction.transaction.id}")
+            logger.info("Finished transfer digital currency responder flow - ${finalizedSignedTransaction.transaction.id}")
         }
         catch (e: Exception) {
-            log.warn("Transfer DigitalCurrency responder flow failed with exception", e)
+            logger.warn("Transfer DigitalCurrency responder flow failed with exception", e)
             throw e
         }
     }

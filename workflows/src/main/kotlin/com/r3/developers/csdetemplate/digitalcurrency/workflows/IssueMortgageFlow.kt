@@ -7,8 +7,6 @@ import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
-import net.corda.v5.ledger.utxo.UtxoLedgerService
-import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 
@@ -17,13 +15,9 @@ data class IssueMortgage(val address: String, val owner: String, val interestRat
 @InitiatingFlow(protocol = "finalize-issue-mortgage-protocol")
 class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
 
-    private companion object {
-        val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
-    }
-
     @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
-        log.info("${this::class.java.enclosingClass}.call() called")
+        logger.info("${this::class.java.enclosingClass}.call() called")
         try {
             val flowArgs = requestBody.getRequestBodyAs(json, IssueMortgage::class.java)
 
@@ -54,40 +48,34 @@ class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
                 listOf(session)
             )
             return finalizedSignedTransaction.transaction.id.toString().also {
-                log.info("Successful ${signedTransaction.commands.first()} with response: $it")
+                logger.info("Successful ${signedTransaction.commands.first()} with response: $it")
             }
         }
         catch (e: Exception) {
-            log.warn("Failed to process issue mortgage for request body '$requestBody' with exception: '${e.message}'")
+            logger.warn("Failed to process issue mortgage for request body '$requestBody' with exception: '${e.message}'")
             throw e
         }
     }
 }
 
 @InitiatedBy(protocol = "finalize-issue-mortgage-protocol")
-class FinalizeIssueMortgageResponderFlow: ResponderFlow {
-    private companion object {
-        val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
-    }
-
-    @CordaInject
-    lateinit var ledgerService: UtxoLedgerService
+class FinalizeIssueMortgageResponderFlow: AbstractFlow(), ResponderFlow {
 
     @Suspendable
     override fun call(session: FlowSession) {
-        log.info("${this::class.java.enclosingClass}.call() called")
+        logger.info("${this::class.java.enclosingClass}.call() called")
 
         try {
             val finalizedSignedTransaction = ledgerService.receiveFinality(session) { ledgerTransaction ->
                 val state = ledgerTransaction.getOutputStates(Mortgage::class.java).singleOrNull() ?:
                 throw CordaRuntimeException("Failed verification - transaction did not have exactly one output Mortgage.")
 
-                log.info("Verified the transaction- ${ledgerTransaction.id}")
+                logger.info("Verified the transaction- ${ledgerTransaction.id}")
             }
-            log.info("Finished issue mortgage responder flow - ${finalizedSignedTransaction.transaction.id}")
+            logger.info("Finished issue mortgage responder flow - ${finalizedSignedTransaction.transaction.id}")
         }
         catch (e: Exception) {
-            log.warn("Issue Mortgage responder flow failed with exception", e)
+            logger.warn("Issue Mortgage responder flow failed with exception", e)
             throw e
         }
     }
