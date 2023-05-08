@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "983e9a3d-573c-4f2c-aed3-24d4e2a9d162",
-		"name": "CSDE",
+		"name": "CSDE-digital-currency",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "118271"
 	},
@@ -236,6 +236,76 @@
 			]
 		},
 		{
+			"name": "Network Status",
+			"item": [
+				{
+					"name": "List Virtual Nodes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8888/api/v1/virtualnode",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"virtualnode"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Member Lookup",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8888/api/v1/members/{{holdingIdentityShortHash-Issuer}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"members",
+								"{{holdingIdentityShortHash-Issuer}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Membership by Holding Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8888/api/v1/membership/{{holdingIdentityShortHash-Issuer}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"membership",
+								"{{holdingIdentityShortHash-Issuer}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Hello Cluster",
 			"request": {
 				"method": "POST",
@@ -257,27 +327,6 @@
 							"key": "addressee",
 							"value": "World"
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "List Virtual Nodes",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://localhost:8888/api/v1/virtualnode",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8888",
-					"path": [
-						"api",
-						"v1",
-						"virtualnode"
 					]
 				}
 			},
@@ -309,7 +358,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueDigitalCurrencyFlow\",\n    \"requestBody\": {\n        \"quantity\":200,\n        \"holder\":\"CN=Bank of Alice, OU=Test Dept, O=R3, L=NYC, C=US\"\n    }\n}"
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueDigitalCurrencyFlow\",\n    \"requestBody\": {\n        \"quantity\":200,\n        \"holder\":\"O=Bank of Alice, L=NYC, C=US\"\n    }\n}"
 				},
 				"url": {
 					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}",
@@ -459,7 +508,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-transferDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.TransferDigitalCurrencyFlow\",\n    \"requestBody\": {\n        \"quantity\":20,\n        \"toHolder\":\"CN=Bank of Bob, OU=Test Dept, O=R3, L=NYC, C=US\"\n    }\n}"
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-transferDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.TransferDigitalCurrencyFlow\",\n    \"requestBody\": {\n        \"quantity\":20,\n        \"toHolder\":\"O=Bank of Bob, L=NYC, C=US\"\n    }\n}"
 				},
 				"url": {
 					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}",
@@ -578,6 +627,81 @@
 						"flow",
 						"{{holdingIdentityShortHash-Alice}}",
 						"{{clientRequestIdPrevious-withdrawDigitalCurrency}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Issue Mortgage Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-issueMortgage\")",
+							"pm.environment.set(\"clientRequestIdPrevious-issueMortgage\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-issueMortgage\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueMortgage}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueMortgageFlow\",\n    \"requestBody\": {\n        \"address\":\"123 Main St.\",\n        \"owner\":\"O=Bank of Alice, L=NYC, C=US\",\n        \"interestRate\":5.25\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Issuer}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Issue Mortgage Flow Status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}/{{clientRequestIdPrevious-issueMortgage}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Issuer}}",
+						"{{clientRequestIdPrevious-issueMortgage}}"
 					]
 				}
 			},

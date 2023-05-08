@@ -1,23 +1,23 @@
 [
   {
-    "x500Name" : "CN=Issuer, OU=Test Dept, O=R3, L=NYC, C=US",
-    "cpi" : "cpi name"
+    "x500Name" : "O=Issuer, L=NYC, C=US",
+    "cpi" : "MyCorDapp"
   },
   {
-    "x500Name" : "CN=Bank of Alice, OU=Test Dept, O=R3, L=NYC, C=US",
-    "cpi" : "cpi name"
+    "x500Name" : "O=Bank of Alice, L=NYC, C=US",
+    "cpi" : "MyCorDapp"
   },
   {
-    "x500Name" : "CN=Bank of Bob, OU=Test Dept, O=R3, L=NYC, C=US",
-    "cpi" : "cpi name"
+    "x500Name" : "O=Bank of Bob, L=NYC, C=US",
+    "cpi" : "MyCorDapp"
   },
   {
-    "x500Name" : "CN=Bank of Charlie, OU=Test Dept, O=R3, L=NYC, C=US",
-    "cpi" : "cpi name"
+    "x500Name" : "O=Bank of Charlie, L=NYC, C=US",
+    "cpi" : "MyCorDapp"
   },
   {
-    "x500Name" : "CN=NotaryRep1, OU=Test Dept, O=R3, L=NYC, C=US",
-    "cpi" : "CSDE Notary Server CPI",
+    "x500Name" : "O=NotaryRep1, L=NYC, C=US",
+    "cpi" : "NotaryServer",
     "serviceX500Name": "CN=NotaryService, OU=Test Dept, O=R3, L=NYC, C=US"
   }
 ]
