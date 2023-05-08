@@ -658,7 +658,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueMortgage}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueMortgageFlow\",\n    \"requestBody\": {\n        \"address\":\"123 Main St.\",\n        \"owner\":\"O=Bank of Alice, L=NYC, C=US\",\n        \"interestRate\":5.25\n    }\n}"
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueMortgage}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueMortgageFlow\",\n    \"requestBody\": {\n        \"address\":\"1234 Main St.\",\n        \"owner\":\"O=Bank of Alice, L=NYC, C=US\",\n        \"interestRate\":5.75\n    }\n}"
 				},
 				"url": {
 					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}",
@@ -702,6 +702,81 @@
 						"flow",
 						"{{holdingIdentityShortHash-Issuer}}",
 						"{{clientRequestIdPrevious-issueMortgage}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Mortgages Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-listMortgages\")",
+							"pm.environment.set(\"clientRequestIdPrevious-listMortgages\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-listMortgages\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-listMortgages}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.ListMortgagesFlow\",\n    \"requestBody\": {}\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Issuer}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Mortgage Flow Status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}/{{clientRequestIdPrevious-listMortgages}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Issuer}}",
+						"{{clientRequestIdPrevious-listMortgages}}"
 					]
 				}
 			},

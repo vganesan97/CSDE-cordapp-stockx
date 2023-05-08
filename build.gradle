@@ -20,7 +20,7 @@ allprojects {
         cordaClusterURL = "https://localhost:8888"
         networkConfigFile = "config/static-network-config.json"
         r3RootCertFile = "config/beta-ca-root.pem"
-        corDappCpiName = "MyCorDapp"
+        corDappCpiName = "digitalCurrencyCordapp"
         notaryCpiName = "NotaryServer"
         cordaRpcUser = "admin"
         cordaRpcPasswd ="admin"

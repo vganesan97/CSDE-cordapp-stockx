@@ -69,7 +69,7 @@ class TransferDigitalCurrencyFlow: ClientStartableFlow {
             if(amountSpent > flowArgs.quantity) {
                 val overspend = amountSpent - flowArgs.quantity
                 val change = spentCurrency.removeLast() //blindly turn last token into change
-                spentCurrency.add(change.sendAmountTo(overspend, fromHolder.name)) //change stays with sender
+                spentCurrency.add(change.sendAmount(overspend)) //change stays with sender
                 spentCurrency.add(change.sendAmountTo(change.quantity-overspend, toHolder.name))
             }
 

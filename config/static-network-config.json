@@ -1,19 +1,19 @@
 [
   {
     "x500Name" : "O=Issuer, L=NYC, C=US",
-    "cpi" : "MyCorDapp"
+    "cpi" : "digitalCurrencyCordapp"
   },
   {
     "x500Name" : "O=Bank of Alice, L=NYC, C=US",
-    "cpi" : "MyCorDapp"
+    "cpi" : "digitalCurrencyCordapp"
   },
   {
     "x500Name" : "O=Bank of Bob, L=NYC, C=US",
-    "cpi" : "MyCorDapp"
+    "cpi" : "digitalCurrencyCordapp"
   },
   {
     "x500Name" : "O=Bank of Charlie, L=NYC, C=US",
-    "cpi" : "MyCorDapp"
+    "cpi" : "digitalCurrencyCordapp"
   },
   {
     "x500Name" : "O=NotaryRep1, L=NYC, C=US",

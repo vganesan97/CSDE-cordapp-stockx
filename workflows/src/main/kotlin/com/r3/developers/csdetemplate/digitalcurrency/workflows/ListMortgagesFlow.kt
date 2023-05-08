@@ -1,6 +1,7 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
 import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
+import com.r3.developers.csdetemplate.digitalcurrency.states.Mortgage
 import net.corda.v5.application.flows.ClientRequestBody
 import net.corda.v5.application.flows.ClientStartableFlow
 import net.corda.v5.application.flows.CordaInject
@@ -10,9 +11,9 @@ import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.utxo.UtxoLedgerService
 import org.slf4j.LoggerFactory
 
-data class DigitalCurrencyStateResults(val quantity: Int, val holder: MemberX500Name)
+data class MortgagesStateResults(val address: String, val owner: MemberX500Name, val interestRate: Double)
 
-class ListDigitalCurrencyFlow : ClientStartableFlow {
+class ListMortgagesFlow : ClientStartableFlow {
     private companion object {
         val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
     }
@@ -26,13 +27,14 @@ class ListDigitalCurrencyFlow : ClientStartableFlow {
 
     @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
-        log.info("ListDigitalCurrenciesFlow.call() called")
+        log.info("ListMortgagesFlow.call() called")
 
-        val states = ledgerService.findUnconsumedStatesByType(DigitalCurrency::class.java)
+        val states = ledgerService.findUnconsumedStatesByType(Mortgage::class.java)
         val results = states.map {
-            DigitalCurrencyStateResults(
-                it.state.contractState.quantity,
-                it.state.contractState.holder) }
+            MortgagesStateResults(
+                it.state.contractState.address,
+                it.state.contractState.owner,
+                it.state.contractState.interestRate) }
 
         return jsonMarshallingService.format(results)
     }
@@ -41,8 +43,8 @@ class ListDigitalCurrencyFlow : ClientStartableFlow {
 /*
 RequestBody for triggering the flow via REST:
 {
-    "clientRequestId": "list-1",
-    "flowClassName": "com.r3.developers.csdetemplate.digitalcurrency.workflows.ListDigitalCurrenciesFlow",
+    "clientRequestId": "list-mortgages-1",
+    "flowClassName": "com.r3.developers.csdetemplate.digitalcurrency.workflows.ListMortgagesFlow",
     "requestBody": {}
 }
 */
