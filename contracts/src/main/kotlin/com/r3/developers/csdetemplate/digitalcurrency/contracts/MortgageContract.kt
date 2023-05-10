@@ -1,6 +1,5 @@
 package com.r3.developers.csdetemplate.digitalcurrency.contracts
 
-import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import com.r3.developers.csdetemplate.digitalcurrency.states.Mortgage
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.ledger.utxo.Command
@@ -10,14 +9,15 @@ import net.corda.v5.ledger.utxo.transaction.UtxoLedgerTransaction
 class MortgageContract: Contract {
 
     class Issue: Command
-    class Transfer: Command
+    class Sell: Command
     class Payoff: Command
 
     override fun verify(transaction: UtxoLedgerTransaction) {
-        val command = transaction.commands.singleOrNull() ?: throw CordaRuntimeException("Requires a single command")
+        val command = transaction.commands.firstOrNull { it is Issue || it is Sell || it is Payoff }
+            ?: throw CordaRuntimeException("Requires a single Mortgage command")
 
         when(command) {
-            is MortgageContract.Issue -> {
+            is Issue -> {
                 "When command is Issue there should be no input states." using (transaction.inputContractStates.isEmpty())
                 "When command is Issue there should be one and only one output state." using (transaction.outputContractStates.size == 1)
 
@@ -26,24 +26,23 @@ class MortgageContract: Contract {
                     output.participants.size==2
                 }
             }
-            is MortgageContract.Transfer -> {
-                "When command is Transfer there should be exactly one input state." using (transaction.inputContractStates.size == 1)
-                "When command is Transfer there should be exactly one output state." using (transaction.outputContractStates.size == 1)
+            is Sell -> {
+                "When command is Sell there should be at least two input states." using (transaction.inputContractStates.size >= 2)
+                "When command is Sell there should be at least two output states." using (transaction.outputContractStates.size >= 2)
 
-                val sentMortgage = transaction.inputContractStates.first() as Mortgage
-                val receivedMortgage = transaction.outputContractStates.first() as Mortgage
-                "When command is Transfer the new owner should be different than the current owner." using (
+                val sentMortgage = transaction.inputContractStates.filterIsInstance<Mortgage>().first()
+                val receivedMortgage = transaction.outputContractStates.filterIsInstance<Mortgage>().first()
+                "When command is Sell the new owner should be different than the current owner." using (
                         sentMortgage.owner != receivedMortgage.owner)
 
-                "When command is Transfer there must be exactly two participants." using (
+                "When command is Sell there must be exactly two participants." using (
                         transaction.outputContractStates.all { it.participants.size == 2 })
             }
-            is MortgageContract.Payoff -> {
-                "When command is Withdraw there should be at least one input state." using (transaction.inputContractStates.size >= 1)
-                "When command is Withdraw there should be no output states." using (transaction.outputContractStates.size == 0)
+            is Payoff -> {
+                //TODO
             }
             else -> {
-                throw CordaRuntimeException("Command not allowed.")
+                throw CordaRuntimeException("Command ${command} not allowed.")
             }
         }
     }

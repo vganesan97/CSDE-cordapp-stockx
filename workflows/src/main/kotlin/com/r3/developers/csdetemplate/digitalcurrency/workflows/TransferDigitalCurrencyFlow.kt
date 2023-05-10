@@ -35,19 +35,9 @@ class TransferDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {
             val availableTokens = ledgerService.findUnconsumedStatesByType(DigitalCurrency::class.java)
 
             val coinSelection = CoinSelection()
-            val (amountSpent, currencyToSpend) = coinSelection.selectTokens(flowArgs.quantity, availableTokens)
-
-            // Send the rest of the other coins to receiver
-            // Ignoring opportunity to merge currency
-            val spentCurrency = currencyToSpend.map { it.state.contractState.sendTo(toHolder.name) }.toMutableList()
-
-            // Send change back to sender
-            if(amountSpent > flowArgs.quantity) {
-                val overspend = amountSpent - flowArgs.quantity
-                val change = spentCurrency.removeLast() //blindly turn last token into change
-                spentCurrency.add(change.sendAmount(overspend)) //change stays with sender
-                spentCurrency.add(change.sendAmountTo(change.quantity-overspend, toHolder.name))
-            }
+            val (currencyToSpend, spentCurrency) = coinSelection.selectTokensForTransfer(flowArgs.quantity,
+                                                            toHolder.name,
+                                                            availableTokens)
 
             val notary = notaryLookup.notaryServices.single()
 

@@ -31,16 +31,7 @@ class WithdrawDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {
             val availableTokens = ledgerService.findUnconsumedStatesByType(DigitalCurrency::class.java)
 
             val coinSelection = CoinSelection()
-            val (amountSpent, currencyToWithdraw) = coinSelection.selectTokens(flowArgs.quantity, availableTokens)
-
-            // Send change back to sender
-            val change = if (amountSpent > flowArgs.quantity) {
-                val overspend = amountSpent - flowArgs.quantity
-                val lastDigitalCurrency = currencyToWithdraw.last() //blindly turn last token into change
-                lastDigitalCurrency.state.contractState.sendAmountTo(overspend, fromHolder.name) //change stays with sender
-            } else {
-                null
-            }
+            val (currencyToWithdraw, remainingCurrency) = coinSelection.selectTokensForRedemption(flowArgs.quantity, availableTokens)
 
             val notary = notaryLookup.notaryServices.single()
 
@@ -48,7 +39,7 @@ class WithdrawDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {
                 .setNotary(notary.name)
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
                 .addInputStates(currencyToWithdraw.map { it.ref })
-                .addOutputStates(change)
+                .addOutputStates(remainingCurrency)
                 .addCommand(DigitalCurrencyContract.Withdraw())
                 .addSignatories(fromHolder.ledgerKeys.first()) // issuer does not sign
 

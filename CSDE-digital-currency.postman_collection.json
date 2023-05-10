@@ -781,6 +781,81 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Start Sell Mortgage Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-sellMortgage\")",
+							"pm.environment.set(\"clientRequestIdPrevious-sellMortgage\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-sellMortgage\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-sellMortgage}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.SellMortgageFlow\",\n    \"requestBody\": {\n        \"address\":\"1234 Main St.\",\n        \"price\":100,\n        \"toOwner\":\"O=Bank of Bob, L=NYC, C=US\"\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Sell Mortgage Flow Status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}/{{clientRequestIdPrevious-sellMortgage}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}",
+						"{{clientRequestIdPrevious-sellMortgage}}"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"auth": {
