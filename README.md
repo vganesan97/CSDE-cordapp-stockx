@@ -34,6 +34,8 @@ Use the provided Postman collection + environment variables to transact on Corda
 5. Sell Mortgages - DvP of two assets
 
 ### Running the Cordapp
+Install the Corda CLI: https://docs.r3.com/en/platform/corda/5.0-beta/developing/getting-started/installing-corda-cli.html
+
 Import the [postman collection](CSDE-digital-currency.postman_collection.json) and [environment variables](CSDE-digital-currency.postman_environment.json) into [Postman](https://www.postman.com/)
 
 Use the `POST` requests to initiate a flow and their matching `GET` to check on the status and result of the response. The following order is recommend for initial testing:
