@@ -33,6 +33,20 @@ Use the provided Postman collection + environment variables to transact on Corda
 4. Issue Mortgages
 5. Sell Mortgages - DvP of two assets
 
+### Running the Cordapp
+Import the [postman collection](CSDE-digital-currency.postman_collection.json) and [environment variables](CSDE-digital-currency.postman_environment.json) into [Postman](https://www.postman.com/)
+
+Use the `POST` requests to initiate a flow and their matching `GET` to check on the status and result of the response. The following order is recommend for initial testing:
+1. Issue currency to Alice
+2. Transfer currency to Bob
+3. Redeem some currency
+4. Issue a mortgage to Alice
+5. Alice sell this mortgage to Bob
+
+You can change the `POST` body in each request to try different scenarios. The request ids that are auto incremented when the flow is started, see "Tests" on the postman requests. The `GET` requests use these updated request ids when checking on flow status. 
+
+Be aware that as of Beta 3 the CSDE worker takes ~40 seconds to complete. If you run a local cluster flows are much faster taking ~4 seconds to run.
+
 ### Setting up CSDE Deployment
 
 1. Begin our test deployment with clicking the `startCorda`. This task will load up the combined Corda workers in docker.
