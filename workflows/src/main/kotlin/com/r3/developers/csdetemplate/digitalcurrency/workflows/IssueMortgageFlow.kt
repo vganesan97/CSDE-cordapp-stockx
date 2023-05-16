@@ -9,8 +9,9 @@ import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
 import java.time.Duration
 import java.time.Instant
+import java.util.*
 
-data class IssueMortgage(val address: String, val owner: String, val interestRate: Double)
+data class IssueMortgage(val address: String, val mortgageId: UUID, val owner: String, val interestRate: Double, val fixedIR: Boolean, val loanToValue: Double, val condition: String, val creditQualityRating: String, val listingDetails: Boolean)
 
 @InitiatingFlow(protocol = "finalize-issue-mortgage-protocol")
 class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
@@ -26,8 +27,17 @@ class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
             throw CordaRuntimeException("MemberLookup can't find owner specified in flow arguments.")
 
             val mortgage = Mortgage(flowArgs.address,
+                flowArgs.mortgageId,
                 owner.name,
                 flowArgs.interestRate,
+                flowArgs.fixedIR,
+                flowArgs.loanToValue,
+                flowArgs.condition,
+                flowArgs.creditQualityRating,
+                flowArgs.listingDetails,
+
+
+
                 participants = listOf(myInfo.ledgerKeys.first(), owner.ledgerKeys.first()))
 
             val notary = notaryLookup.notaryServices.single()

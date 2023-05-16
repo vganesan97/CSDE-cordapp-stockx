@@ -658,7 +658,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueMortgage}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueMortgageFlow\",\n    \"requestBody\": {\n        \"address\":\"1234 Main St.\",\n        \"owner\":\"O=Bank of Alice, L=NYC, C=US\",\n        \"interestRate\":5.75\n    }\n}"
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueMortgage}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueMortgageFlow\",\n    \"requestBody\": {\n        \"address\":\"1234 Main St.\",\n        \"mortgageId\":\"b249f170-f3ff-11ed-a05b-0242ac120003\",\n        \"owner\":\"O=Bank of Alice, L=NYC, C=US\",\n        \"interestRate\":5.75,\n        \"fixedIR\":true,\n        \"loanToValue\":0.5,\n        \"condition\":\"New\",\n        \"creditQualityRating\":\"AAA\",\n        \"listingDetails\":false\n\n\n\n    }\n}"
 				},
 				"url": {
 					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}",
