@@ -10,12 +10,17 @@ import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
+import net.corda.v5.ledger.utxo.StateAndRef
+import net.corda.v5.ledger.utxo.StateRef
+import org.jetbrains.annotations.NotNull
 import java.time.Duration
 import java.time.Instant
+import java.util.*
+import kotlin.collections.List
 
 // TODO: query by state id
-data class SellMortgage(val address: String, val price: Int, val toOwner: String)
-
+//data class SellMortgage(val address: String, val price: Int, val toOwner: String)
+ data class SellMortgage (val bundleOfMortgages: List<UUID>, val price: Int, val toOwner: String)
 @InitiatingFlow(protocol = "finalize-sell-mortgage-protocol")
 class SellMortgageFlow: AbstractFlow(), ClientStartableFlow {
 
@@ -40,18 +45,28 @@ class SellMortgageFlow: AbstractFlow(), ClientStartableFlow {
 //                                        .setParameter("address", flowArgs.address)
 //                                        .execute()
 //                                        .results.first()
-            val existingMortgages = ledgerService.findUnconsumedStatesByType(Mortgage::class.java)
-            val soldMortgage = existingMortgages.singleOrNull { it.state.contractState.address == flowArgs.address }
-                ?: throw CordaRuntimeException("No mortgage found for address ${flowArgs.address}")
+//          +++++++
+            // Queries the VNode's vault for unconsumed states part of Bundle of Mortgages
+            val existingMortgage = ledgerService.findUnconsumedStatesByType(Mortgage::class.java)
+            val soldMortgage = existingMortgage.filter  {
+                mortgage ->
+                flowArgs.bundleOfMortgages.contains(mortgage.state.contractState.mortgageId)
 
-            val purchasedMortgage = soldMortgage.state.contractState.newOwner(toHolder.name)
+            }
+//          +++++++
+
+//            val existingMortgages = ledgerService.findUnconsumedStatesByType(Mortgage::class.java)
+//            val soldMortgage = existingMortgages.singleOrNull { it.state.contractState.address == flowArgs.address }
+//                ?: throw CordaRuntimeException("No mortgage found for address ${flowArgs.address}")
+
+            val purchasedMortgage = soldMortgage.map { it -> it.state.contractState.newOwner(toHolder.name)}
 
             val notary = notaryLookup.notaryServices.single()
 
             val txBuilder = ledgerService.createTransactionBuilder()
                 .setNotary(notary.name)
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
-                .addInputStates(soldMortgage.ref)
+                .addInputStates(soldMortgage.map { it.ref })
                 .addOutputStates(purchasedMortgage)
                 .addCommand(MortgageContract.Sell())
                 .addSignatories(fromOwner.ledgerKeys.first(), toHolder.ledgerKeys.first())
@@ -59,6 +74,7 @@ class SellMortgageFlow: AbstractFlow(), ClientStartableFlow {
             val session = flowMessaging.initiateFlow(toHolder.name
             ) { flowContextProperties: FlowContextProperties ->
                 flowContextProperties.put("price", flowArgs.price.toString())
+                flowContextProperties.put("toOwner", flowArgs.toOwner)
             }
 
             logger.info("Seller sending TxBuilder to ${session.counterparty}")
@@ -94,14 +110,13 @@ class FinalizeSellMortgageResponderFlow: AbstractFlow(), ResponderFlow {
             val proposedTxBuilder = ledgerService.receiveTransactionBuilder(session)
             logger.info("Buyer received TxBuilder}")
             val price = flowEngine.flowContextProperties.get("price") ?: throw CordaRuntimeException("Price not provided to buyer")
-            val buyer = memberLookup.myInfo()
+            val newOwner = flowEngine.flowContextProperties.get("toOwner") ?: throw CordaRuntimeException("New owner not provided to buyer")
+            val toOwner = memberLookup.lookup(MemberX500Name.parse(newOwner)) ?:
+                throw CordaRuntimeException("Buyer can't find toOwner specified in flow session.")
 
             val availableTokens = ledgerService.findUnconsumedStatesByType(DigitalCurrency::class.java)
             val coinSelection = CoinSelection()
-            val (currencyToSpend, spentCurrency) = coinSelection.selectTokensForTransfer(price.toInt(),
-                                                            buyer.name,
-                                                            session.counterparty,
-                                                            availableTokens)
+            val (currencyToSpend, spentCurrency) = coinSelection.selectTokensForTransfer(price.toInt(), session.counterparty, availableTokens)
 
             proposedTxBuilder.addInputStates(currencyToSpend.map { it.ref })
             proposedTxBuilder.addOutputStates(spentCurrency)
