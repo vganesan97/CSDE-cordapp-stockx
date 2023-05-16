@@ -36,6 +36,7 @@ class TransferDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {
 
             val coinSelection = CoinSelection()
             val (currencyToSpend, spentCurrency) = coinSelection.selectTokensForTransfer(flowArgs.quantity,
+                                                            fromHolder.name,
                                                             toHolder.name,
                                                             availableTokens)
 

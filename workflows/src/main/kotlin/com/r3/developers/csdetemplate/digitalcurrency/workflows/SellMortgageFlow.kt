@@ -59,7 +59,6 @@ class SellMortgageFlow: AbstractFlow(), ClientStartableFlow {
             val session = flowMessaging.initiateFlow(toHolder.name
             ) { flowContextProperties: FlowContextProperties ->
                 flowContextProperties.put("price", flowArgs.price.toString())
-                flowContextProperties.put("toOwner", flowArgs.toOwner)
             }
 
             logger.info("Seller sending TxBuilder to ${session.counterparty}")
@@ -95,13 +94,14 @@ class FinalizeSellMortgageResponderFlow: AbstractFlow(), ResponderFlow {
             val proposedTxBuilder = ledgerService.receiveTransactionBuilder(session)
             logger.info("Buyer received TxBuilder}")
             val price = flowEngine.flowContextProperties.get("price") ?: throw CordaRuntimeException("Price not provided to buyer")
-            val newOwner = flowEngine.flowContextProperties.get("toOwner") ?: throw CordaRuntimeException("New owner not provided to buyer")
-            val toOwner = memberLookup.lookup(MemberX500Name.parse(newOwner)) ?:
-                throw CordaRuntimeException("Buyer can't find toOwner specified in flow session.")
+            val buyer = memberLookup.myInfo()
 
             val availableTokens = ledgerService.findUnconsumedStatesByType(DigitalCurrency::class.java)
             val coinSelection = CoinSelection()
-            val (currencyToSpend, spentCurrency) = coinSelection.selectTokensForTransfer(price.toInt(), session.counterparty, availableTokens)
+            val (currencyToSpend, spentCurrency) = coinSelection.selectTokensForTransfer(price.toInt(),
+                                                            buyer.name,
+                                                            session.counterparty,
+                                                            availableTokens)
 
             proposedTxBuilder.addInputStates(currencyToSpend.map { it.ref })
             proposedTxBuilder.addOutputStates(spentCurrency)

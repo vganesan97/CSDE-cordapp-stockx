@@ -4,10 +4,12 @@ import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.utxo.StateAndRef
+import java.lang.reflect.Member
 
 class CoinSelection @JvmOverloads constructor() {
 
     fun selectTokensForTransfer(quantity: Int,
+                                sender: MemberX500Name,
                                 recipient: MemberX500Name,
                                 availableTokens: List<StateAndRef<DigitalCurrency>>):
             Pair<List<StateAndRef<DigitalCurrency>>, List<DigitalCurrency>> {
@@ -21,8 +23,8 @@ class CoinSelection @JvmOverloads constructor() {
         if(amountSpent > quantity) {
             val overspend = amountSpent - quantity
             val change = spentCurrency.removeLast() //blindly turn last token into change
-            spentCurrency.add(change.sendAmount(overspend)) //change stays with sender
-            spentCurrency.add(change.sendAmountTo(change.quantity-overspend, recipient))
+            spentCurrency.add(change.sendAmountTo(overspend, sender)) //change stays with sender
+            spentCurrency.add(change.sendAmount(change.quantity-overspend))
         }
 
 
