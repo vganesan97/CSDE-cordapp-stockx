@@ -11,7 +11,7 @@ import java.util.*
 data class Mortgage(
     val address: String,
     val mortgageId: UUID,
-    val owner: MemberX500Name,
+    val owner: PublicKey,
     val interestRate: Double,
     val fixedIR: Boolean,
     val loanToValue: Double,
@@ -23,6 +23,6 @@ data class Mortgage(
         return participants
     }
 
-    fun newOwner(newOwner: MemberX500Name) =
+    fun newOwner(newOwner: PublicKey) =
         copy(owner = newOwner)
 }

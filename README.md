@@ -76,6 +76,8 @@ Confirm the Corda workers are running:
 `kubectl get pods --namespace corda`
 
 Get the admin password for the cluster:
+`kubectl get secret corda-initial-admin-user --namespace corda -o go-template='{{ .data.password | base64decode }}'`
+OR
 `kubectl get secret corda-rest-api-admin --namespace corda -o go-template='{{ .data.password | base64decode }}'`
 
 Update the admin password for the cluster in CSDE config of build.gradle:

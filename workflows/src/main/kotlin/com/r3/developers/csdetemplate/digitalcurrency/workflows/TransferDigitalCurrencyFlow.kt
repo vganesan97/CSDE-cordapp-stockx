@@ -36,8 +36,8 @@ class TransferDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {
 
             val coinSelection = CoinSelection()
             val (currencyToSpend, spentCurrency) = coinSelection.selectTokensForTransfer(flowArgs.quantity,
-                                                            fromHolder.name,
-                                                            toHolder.name,
+                                                            fromHolder.ledgerKeys.first(),
+                                                            toHolder.ledgerKeys.first(),
                                                             availableTokens)
 
             val notary = notaryLookup.notaryServices.single()

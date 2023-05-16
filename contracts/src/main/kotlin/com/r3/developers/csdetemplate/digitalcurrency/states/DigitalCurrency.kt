@@ -9,7 +9,7 @@ import java.security.PublicKey
 @BelongsToContract(DigitalCurrencyContract::class)
 data class DigitalCurrency(
     val quantity: Int,
-    val holder: MemberX500Name,
+    val holder: PublicKey,
     private val participants: List<PublicKey>) : ContractState {
     override fun getParticipants(): List<PublicKey> {
         return participants
@@ -18,10 +18,10 @@ data class DigitalCurrency(
     fun sendAmount(send: Int) =
         copy(quantity = send)
 
-    fun sendTo(newHolder: MemberX500Name) =
+    fun sendTo(newHolder: PublicKey) =
         copy(holder = newHolder)
 
-    fun sendAmountTo(send: Int, newHolder: MemberX500Name) =
+    fun sendAmountTo(send: Int, newHolder: PublicKey) =
         copy(quantity = send, holder = newHolder)
 
 }

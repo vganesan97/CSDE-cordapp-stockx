@@ -5,12 +5,13 @@ import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.utxo.StateAndRef
 import java.lang.reflect.Member
+import java.security.PublicKey
 
 class CoinSelection @JvmOverloads constructor() {
 
     fun selectTokensForTransfer(quantity: Int,
-                                sender: MemberX500Name,
-                                recipient: MemberX500Name,
+                                sender: PublicKey,
+                                recipient: PublicKey,
                                 availableTokens: List<StateAndRef<DigitalCurrency>>):
             Pair<List<StateAndRef<DigitalCurrency>>, List<DigitalCurrency>> {
         // Simple (unoptimized) coin selection for learning purposes only

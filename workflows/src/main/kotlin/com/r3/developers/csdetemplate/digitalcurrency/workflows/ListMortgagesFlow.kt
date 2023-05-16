@@ -1,10 +1,12 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
+import com.r3.developers.csdetemplate.digitalcurrency.helpers.findInfo
 import com.r3.developers.csdetemplate.digitalcurrency.states.Mortgage
 import net.corda.v5.application.flows.ClientRequestBody
 import net.corda.v5.application.flows.ClientStartableFlow
 import net.corda.v5.application.flows.CordaInject
 import net.corda.v5.application.marshalling.JsonMarshallingService
+import net.corda.v5.application.membership.MemberLookup
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.utxo.UtxoLedgerService
@@ -25,6 +27,9 @@ class ListMortgagesFlow : ClientStartableFlow {
     @CordaInject
     lateinit var ledgerService: UtxoLedgerService
 
+    @CordaInject
+    lateinit var memberLookup: MemberLookup
+
     @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
         log.info("ListMortgagesFlow.call() called")
@@ -34,15 +39,13 @@ class ListMortgagesFlow : ClientStartableFlow {
             MortgagesStateResults(
                 it.state.contractState.address,
                 it.state.contractState.mortgageId,
-                it.state.contractState.owner,
+                memberLookup.findInfo(it.state.contractState.owner).name,
                 it.state.contractState.interestRate,
                 it.state.contractState.fixedIR,
                 it.state.contractState.loanToValue,
                 it.state.contractState.condition,
                 it.state.contractState.creditQualityRating,
-                it.state.contractState.listingDetails
-
-            ) }
+                it.state.contractState.listingDetails) }
 
         return jsonMarshallingService.format(results)
     }

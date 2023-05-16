@@ -28,7 +28,7 @@ class IssueDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {
                 throw CordaRuntimeException("MemberLookup can't find holder specified in flow arguments.")
 
             val digitalCurrency = DigitalCurrency(flowArgs.quantity,
-                holder.name,
+                holder.ledgerKeys.first(),
                 participants = listOf(myInfo.ledgerKeys.first(), holder.ledgerKeys.first()))
 
             val notary = notaryLookup.notaryServices.single()

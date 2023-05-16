@@ -24,11 +24,11 @@ class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
 
             val myInfo = memberLookup.myInfo()
             val owner = memberLookup.lookup(MemberX500Name.parse(flowArgs.owner)) ?:
-            throw CordaRuntimeException("MemberLookup can't find owner specified in flow arguments.")
+                throw CordaRuntimeException("MemberLookup can't find owner specified in flow arguments.")
 
             val mortgage = Mortgage(flowArgs.address,
                 flowArgs.mortgageId,
-                owner.name,
+                owner.ledgerKeys.first(),
                 flowArgs.interestRate,
                 flowArgs.fixedIR,
                 flowArgs.loanToValue,
