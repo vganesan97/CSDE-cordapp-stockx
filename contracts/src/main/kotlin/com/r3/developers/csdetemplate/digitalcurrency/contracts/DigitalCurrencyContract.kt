@@ -21,9 +21,9 @@ class DigitalCurrencyContract: Contract {
                 "When command is Issue there should be no input states." using (transaction.inputContractStates.isEmpty())
                 "When command is Issue there should be one and only one output state." using (transaction.outputContractStates.size == 1)
 
-                "The output state should have two and only two participants." using {
+                "The output state should have only one participant." using {
                     val output = transaction.outputContractStates.first() as DigitalCurrency
-                    output.participants.size==2
+                    output.participants.size==1
                 }
             }
             is Transfer -> {
@@ -37,8 +37,8 @@ class DigitalCurrencyContract: Contract {
                 "When command is Transfer the sent and received amount should be the same total amount." using (
                     sentAmount == receivedAmount)
 
-                "When command is Transfer there must be exactly two participants." using (
-                        receivedDigitalCurrency.all { it.participants.size == 2 })
+                "When command is Transfer there must be exactly one participant." using (
+                        receivedDigitalCurrency.all { it.participants.size == 1 })
                 // additional checks for sender/receiver being the specific participants
             }
             is Withdraw -> {
@@ -52,8 +52,8 @@ class DigitalCurrencyContract: Contract {
                 "When command is Withdraw the sent amount should be greater than the remaining amount." using (
                         sentAmount > remainingAmount)
 
-                "When command is Withdraw there must be exactly two participants." using (
-                        remainingDigitalCurrency.all { it.participants.size == 2 })
+                "When command is Withdraw there must be exactly one participant." using (
+                        remainingDigitalCurrency.all { it.participants.size == 1 })
             }
             else -> {
                 throw CordaRuntimeException("Command ${command} not allowed.")

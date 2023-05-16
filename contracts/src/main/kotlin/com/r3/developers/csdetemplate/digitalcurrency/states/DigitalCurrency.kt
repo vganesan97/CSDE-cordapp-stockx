@@ -12,7 +12,7 @@ data class DigitalCurrency(
     val holder: PublicKey,
     private val participants: List<PublicKey>) : ContractState {
     override fun getParticipants(): List<PublicKey> {
-        return participants
+        return listOf(holder)
     }
 
     fun sendAmount(send: Int) =

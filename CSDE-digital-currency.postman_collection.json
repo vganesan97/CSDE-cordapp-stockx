@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "983e9a3d-573c-4f2c-aed3-24d4e2a9d162",
+		"_postman_id": "8b36d0bb-c63c-4906-bae0-f91367a9d982",
 		"name": "CSDE-digital-currency",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "118271"
@@ -333,7 +333,7 @@
 			"response": []
 		},
 		{
-			"name": "Start Issue Digital Currency Flow",
+			"name": "Issue Alice Digital Currency Flow",
 			"event": [
 				{
 					"listen": "test",
@@ -359,6 +359,51 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueDigitalCurrencyFlow\",\n    \"requestBody\": {\n        \"quantity\":200,\n        \"holder\":\"O=Bank of Alice, L=NYC, C=US\"\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Issuer}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Issue Bob Digital Currency Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-issueDigitalCurrency\")",
+							"pm.environment.set(\"clientRequestIdPrevious-issueDigitalCurrency\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-issueDigitalCurrency\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueDigitalCurrencyFlow\",\n    \"requestBody\": {\n        \"quantity\":200,\n        \"holder\":\"O=Bank of Bob, L=NYC, C=US\"\n    }\n}"
 				},
 				"url": {
 					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}",
@@ -408,7 +453,7 @@
 			"response": []
 		},
 		{
-			"name": "List Digital Currency Flow",
+			"name": "List Alice Digital Currency Flow",
 			"event": [
 				{
 					"listen": "test",
@@ -453,7 +498,7 @@
 			"response": []
 		},
 		{
-			"name": "List Digital Currency Flow Status",
+			"name": "List Alice Digital Currency Flow Status",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -476,6 +521,81 @@
 						"v1",
 						"flow",
 						"{{holdingIdentityShortHash-Alice}}",
+						"{{clientRequestIdPrevious-listDigitalCurrency}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Bob Digital Currency Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-listDigitalCurrency\")",
+							"pm.environment.set(\"clientRequestIdPrevious-listDigitalCurrency\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-listDigitalCurrency\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-listDigitalCurrency}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.ListDigitalCurrencyFlow\",\n    \"requestBody\": {}\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Bob}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Bob}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Bob Digital Currency Flow Status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Bob}}/{{clientRequestIdPrevious-listDigitalCurrency}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Bob}}",
 						"{{clientRequestIdPrevious-listDigitalCurrency}}"
 					]
 				}
@@ -736,7 +856,7 @@
 					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-listMortgages}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.ListMortgagesFlow\",\n    \"requestBody\": {}\n}"
 				},
 				"url": {
-					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}",
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -746,7 +866,7 @@
 						"api",
 						"v1",
 						"flow",
-						"{{holdingIdentityShortHash-Issuer}}"
+						"{{holdingIdentityShortHash-Alice}}"
 					]
 				}
 			},
@@ -765,7 +885,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}/{{clientRequestIdPrevious-listMortgages}}",
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}/{{clientRequestIdPrevious-listMortgages}}",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -775,7 +895,7 @@
 						"api",
 						"v1",
 						"flow",
-						"{{holdingIdentityShortHash-Issuer}}",
+						"{{holdingIdentityShortHash-Alice}}",
 						"{{clientRequestIdPrevious-listMortgages}}"
 					]
 				}

@@ -33,8 +33,12 @@ class ListMortgagesFlow : ClientStartableFlow {
     @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
         log.info("ListMortgagesFlow.call() called")
+        val queryingMember = memberLookup.myInfo()
 
-        val states = ledgerService.findUnconsumedStatesByType(Mortgage::class.java)
+        val states = ledgerService.findUnconsumedStatesByType(Mortgage::class.java).filter { mortgages ->
+            mortgages.state.contractState.owner == queryingMember.ledgerKeys.first()
+        }
+
         val results = states.map {
             MortgagesStateResults(
                 it.state.contractState.address,

@@ -20,7 +20,7 @@ data class Mortgage(
     val listingDetails: Boolean,
     private val participants: List<PublicKey>) : ContractState {
     override fun getParticipants(): List<PublicKey> {
-        return participants
+        return listOf(owner)
     }
 
     fun newOwner(newOwner: PublicKey) =

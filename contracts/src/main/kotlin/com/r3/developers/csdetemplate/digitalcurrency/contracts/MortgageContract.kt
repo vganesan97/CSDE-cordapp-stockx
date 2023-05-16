@@ -21,9 +21,9 @@ class MortgageContract: Contract {
                 "When command is Issue there should be no input states." using (transaction.inputContractStates.isEmpty())
                 "When command is Issue there should be one and only one output state." using (transaction.outputContractStates.size == 1)
 
-                "The output state should have two and only two participants." using {
+                "The output state should have only 1 participant." using {
                     val output = transaction.outputContractStates.first() as Mortgage
-                    output.participants.size==2
+                    output.participants.size==1
                 }
             }
             is Sell -> {
@@ -35,8 +35,8 @@ class MortgageContract: Contract {
                 "When command is Sell the new owner should be different than the current owner." using (
                         sentMortgage.owner != receivedMortgage.owner)
 
-                "When command is Sell there must be exactly two participants." using (
-                        transaction.outputContractStates.all { it.participants.size == 2 })
+                "When command is Sell there must be exactly one participants." using (
+                        transaction.outputContractStates.all { it.participants.size == 1 })
             }
             is Payoff -> {
                 //TODO

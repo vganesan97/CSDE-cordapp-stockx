@@ -32,8 +32,12 @@ class ListDigitalCurrencyFlow : ClientStartableFlow {
     @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
         log.info("ListDigitalCurrenciesFlow.call() called")
+        val queryingMember = memberLookup.myInfo()
 
-        val states = ledgerService.findUnconsumedStatesByType(DigitalCurrency::class.java)
+        val states = ledgerService.findUnconsumedStatesByType(DigitalCurrency::class.java).filter { digitalCurrency ->
+            digitalCurrency.state.contractState.holder == queryingMember.ledgerKeys.first()
+        }
+
         val results = states.map {
             DigitalCurrencyStateResults(
                 it.state.contractState.quantity,

@@ -18,7 +18,9 @@ class CoinSelection @JvmOverloads constructor() {
         // Send the rest of the other coins to receiver
         // Ignoring opportunity to merge currency
         val (amountSpent, selectedTokens) = selectTokens(quantity, availableTokens)
-        val spentCurrency = selectedTokens.map { it.state.contractState.sendTo(recipient) }.toMutableList()
+        val spentCurrency = selectedTokens.map {
+            it.state.contractState.sendTo(recipient)
+        }.toMutableList()
 
         // Send change back to sender
         if(amountSpent > quantity) {
