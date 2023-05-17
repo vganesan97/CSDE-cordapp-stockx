@@ -11,7 +11,7 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 
-data class IssueMortgage(val address: String, val mortgageId: UUID, val owner: String, val interestRate: Double, val fixedIR: Boolean, val loanToValue: Double, val condition: String, val creditQualityRating: String, val listingDetails: Boolean)
+data class IssueMortgage(val address: String, val owner: String, val interestRate: Double, val fixedIR: Boolean, val loanToValue: Double, val condition: String, val creditQualityRating: String, val listingDetails: Boolean)
 
 @InitiatingFlow(protocol = "finalize-issue-mortgage-protocol")
 class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
@@ -27,7 +27,7 @@ class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
                 throw CordaRuntimeException("MemberLookup can't find owner specified in flow arguments.")
 
             val mortgage = Mortgage(flowArgs.address,
-                flowArgs.mortgageId,
+                mortgageId = UUID.randomUUID(),
                 owner.ledgerKeys.first(),
                 flowArgs.interestRate,
                 flowArgs.fixedIR,
