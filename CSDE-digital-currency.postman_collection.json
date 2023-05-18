@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "8b36d0bb-c63c-4906-bae0-f91367a9d982",
+		"_postman_id": "46110d16-a7fc-406e-abaa-6a23e8addb44",
 		"name": "CSDE-digital-currency",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "118271"
+		"_exporter_id": "12846281"
 	},
 	"item": [
 		{
@@ -778,7 +778,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueMortgage}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueMortgageFlow\",\n    \"requestBody\": {\n        \"address\":\"1234 Main St.\",\n        \"mortgageId\":\"b249f170-f3ff-11ed-a05b-0242ac120003\",\n        \"owner\":\"O=Bank of Alice, L=NYC, C=US\",\n        \"interestRate\":5.75,\n        \"fixedInterestRate\":true,\n        \"loanToValue\":0.5,\n        \"condition\":\"New\",\n        \"creditQualityRating\":\"AAA\",\n        \"listingDetails\":\"Residential\"\n\n\n\n    }\n}"
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-issueMortgage}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.IssueMortgageFlow\",\n    \"requestBody\": {\n        \"address\":\"1234 Main St.\",\n        \"owner\":\"O=Bank of Alice, L=NYC, C=US\",\n        \"interestRate\":5.75,\n        \"fixedInterestRate\":true,\n        \"loanToValue\":0.5,\n        \"condition\":\"New\",\n        \"creditQualityRating\":\"AAA\",\n        \"listingDetails\":\"Residential\"\n\n\n\n    }\n}"
 				},
 				"url": {
 					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Issuer}}",

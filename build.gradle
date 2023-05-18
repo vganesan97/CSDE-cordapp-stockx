@@ -23,7 +23,7 @@ allprojects {
         corDappCpiName = "digitalCurrencyCordapp"
         notaryCpiName = "NotaryServer"
         cordaRpcUser = "admin"
-        cordaRpcPasswd ="admin"
+        cordaRpcPasswd = "admin"
         csdeWorkspaceDir = "workspace"
         notaryVersion = cordaNotaryPluginsVersion
         combinedWorkerVersion = combinedWorkerJarVersion
