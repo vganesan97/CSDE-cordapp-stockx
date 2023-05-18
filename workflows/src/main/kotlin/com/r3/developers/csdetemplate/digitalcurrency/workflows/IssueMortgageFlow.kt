@@ -53,6 +53,7 @@ class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
                 .addOutputState(mortgage)
                 .addCommand(MortgageContract.Issue())
                 .addSignatories(mortgage.participants)
+                .addSignatories(myInfo.ledgerKeys.first())
 
             val signedTransaction = txBuilder.toSignedTransaction()
 

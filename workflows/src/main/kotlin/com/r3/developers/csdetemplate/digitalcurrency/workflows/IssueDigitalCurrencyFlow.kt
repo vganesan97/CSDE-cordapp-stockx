@@ -39,6 +39,7 @@ class IssueDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {
                 .addOutputState(digitalCurrency)
                 .addCommand(DigitalCurrencyContract.Issue())
                 .addSignatories(digitalCurrency.participants)
+                .addSignatories(myInfo.ledgerKeys.first())
 
             val signedTransaction = txBuilder.toSignedTransaction()
 
