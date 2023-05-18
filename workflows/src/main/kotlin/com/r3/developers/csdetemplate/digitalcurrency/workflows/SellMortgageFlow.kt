@@ -16,8 +16,7 @@ import java.util.*
 import kotlin.collections.List
 
 // TODO: query by state id
-//data class SellMortgage(val address: String, val price: Int, val toOwner: String)
-data class SellMortgage (val bundleOfMortgages: List<UUID>, val price: Int, val toOwner: String)
+data class SellMortgage (val mortgageIds: List<UUID>, val price: Int, val buyer: String)
 
 @InitiatingFlow(protocol = "finalize-sell-mortgage-protocol")
 class SellMortgageFlow: AbstractFlow(), ClientStartableFlow {
@@ -31,29 +30,24 @@ class SellMortgageFlow: AbstractFlow(), ClientStartableFlow {
 
             val fromOwner = memberLookup.myInfo()
 
-            if (flowArgs.toOwner == fromOwner.name.toString()) {
+            if (flowArgs.buyer == fromOwner.name.toString()) {
                 throw CordaRuntimeException("Cannot sell mortgage to self.")
             }
 
-            val toHolder = memberLookup.lookup(MemberX500Name.parse(flowArgs.toOwner)) ?:
+            val toHolder = memberLookup.lookup(MemberX500Name.parse(flowArgs.buyer)) ?:
                 throw CordaRuntimeException("MemberLookup can't find toHolder specified in flow arguments.")
 
             //TODO: needs query which returns StateAndRef
-//            val existingMortgage = ledgerService.query("find mortgage by address", Mortgage::class.java)
-//                                        .setParameter("address", flowArgs.address)
+//            val existingMortgage = ledgerService.query("find mortgage by ids", Mortgage::class.java)
+//                                        .setParameter("ids", flowArgs.mortgageIds)
 //                                        .execute()
 //                                        .results.first()
-//          +++++++
+
             // Queries the VNode's vault for unconsumed states part of Bundle of Mortgages
             val existingMortgage = ledgerService.findUnconsumedStatesByType(Mortgage::class.java)
             val soldMortgages = existingMortgage.filter  { mortgage ->
-                flowArgs.bundleOfMortgages.contains(mortgage.state.contractState.mortgageId)
+                flowArgs.mortgageIds.contains(mortgage.state.contractState.mortgageId)
             }
-//          +++++++
-
-//            val existingMortgages = ledgerService.findUnconsumedStatesByType(Mortgage::class.java)
-//            val soldMortgage = existingMortgages.singleOrNull { it.state.contractState.address == flowArgs.address }
-//                ?: throw CordaRuntimeException("No mortgage found for address ${flowArgs.address}")
 
             val purchasedMortgages = soldMortgages.map { soldMortgage ->
                 soldMortgage.state.contractState.newOwner(toHolder.ledgerKeys.first())
@@ -72,7 +66,7 @@ class SellMortgageFlow: AbstractFlow(), ClientStartableFlow {
             val session = flowMessaging.initiateFlow(toHolder.name
             ) { flowContextProperties: FlowContextProperties ->
                 flowContextProperties.put("price", flowArgs.price.toString())
-                flowContextProperties.put("toOwner", flowArgs.toOwner)
+                flowContextProperties.put("buyer", flowArgs.buyer)
             }
 
             logger.info("Seller sending TxBuilder to ${session.counterparty}")
@@ -149,9 +143,9 @@ class FinalizeSellMortgageResponderFlow: AbstractFlow(), ResponderFlow {
     "clientRequestId": "sell-mortgage-1",
     "flowClassName": "com.r3.developers.csdetemplate.digitalcurrency.workflows.SellMortgageFlow",
     "requestBody": {
-        "address":"1234 Main St.",
+        "mortgageIds":["1234"],
         "price":100,
-        "toOwner":"O=Bank of Bob, L=NYC, C=US"
+        "buyer":"O=Bank of Bob, L=NYC, C=US"
     }
 }
  */

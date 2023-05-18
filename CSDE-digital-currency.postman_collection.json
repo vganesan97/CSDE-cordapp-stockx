@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "46110d16-a7fc-406e-abaa-6a23e8addb44",
+		"_postman_id": "63c998fe-c6ea-4ed6-846b-18318c9cf509",
 		"name": "CSDE-digital-currency",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "12846281"
@@ -928,7 +928,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-sellMortgage}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.SellMortgageFlow\",\n    \"requestBody\": {\n        \"address\":\"1234 Main St.\",\n        \"price\":100,\n        \"toOwner\":\"O=Bank of Bob, L=NYC, C=US\"\n    }\n}"
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-sellMortgage}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.SellMortgageFlow\",\n    \"requestBody\": {\n        \"mortgageIds\":[\"1\"],\n        \"price\":100,\n        \"buyers\":\"O=Bank of Bob, L=NYC, C=US\"\n    }\n}"
 				},
 				"url": {
 					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}",
