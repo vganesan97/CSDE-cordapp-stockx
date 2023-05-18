@@ -13,7 +13,16 @@ import net.corda.v5.ledger.utxo.UtxoLedgerService
 import org.slf4j.LoggerFactory
 import java.util.*
 
-data class MortgagesStateResults(val address: String, val mortgageId: UUID, val owner: MemberX500Name, val interestRate: Double, val fixedInterestRate: Boolean, val loanToValue: Double, val condition: String, val creditQualityRating: String, val listingDetails: String)
+data class MortgagesStateResults(val address: String,
+                                 val mortgageId: UUID,
+                                 val owner: MemberX500Name,
+                                 val interestRate: Double,
+                                 val fixedInterestRate: Boolean,
+                                 val loanToValue: Double,
+                                 val condition: String,
+                                 val creditQualityRating: String,
+                                 val listingDetails: String,
+                                 val bundled: Boolean)
 
 class ListMortgagesFlow : ClientStartableFlow {
     private companion object {
@@ -49,7 +58,8 @@ class ListMortgagesFlow : ClientStartableFlow {
                 it.state.contractState.loanToValue,
                 it.state.contractState.condition,
                 it.state.contractState.creditQualityRating,
-                it.state.contractState.listingDetails) }
+                it.state.contractState.listingDetails,
+                it.state.contractState.bundled) }
 
         return jsonMarshallingService.format(results)
     }

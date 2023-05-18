@@ -1,7 +1,9 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.BundleOfMortgagesContract
+import com.r3.developers.csdetemplate.digitalcurrency.contracts.MortgageContract
 import com.r3.developers.csdetemplate.digitalcurrency.states.BundleOfMortgages
+import com.r3.developers.csdetemplate.digitalcurrency.states.Mortgage
 import net.corda.v5.application.flows.*
 import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
@@ -29,11 +31,24 @@ class CreateBundleOfMortgagesFlow: AbstractFlow(), ClientStartableFlow {
                 flowArgs.mortgageIds,
                 participants = listOf(myInfo.ledgerKeys.first()))
 
+            val targetMortgages = ledgerService.findUnconsumedStatesByType(Mortgage::class.java).filter { mortgage ->
+                flowArgs.mortgageIds.contains(mortgage.state.contractState.mortgageId)
+            }
+
+            if(targetMortgages.isEmpty()) throw CordaRuntimeException("Found no mortgages to bundle.")
+
+            val bundledMortgages = targetMortgages.map { bundle ->
+                bundle.state.contractState.bundled()
+            }
+
             val notary = notaryLookup.notaryServices.single()
 
             val txBuilder = ledgerService.createTransactionBuilder()
                 .setNotary(notary.name)
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
+                .addInputStates(targetMortgages.map { it.ref })
+                .addOutputStates(bundledMortgages)
+                .addCommand(MortgageContract.Bundle())
                 .addOutputState(bundle)
                 .addCommand(BundleOfMortgagesContract.Create())
                 .addSignatories(myInfo.ledgerKeys.first())

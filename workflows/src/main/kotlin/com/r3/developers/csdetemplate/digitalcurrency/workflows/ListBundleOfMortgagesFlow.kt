@@ -1,7 +1,6 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
 import com.r3.developers.csdetemplate.digitalcurrency.helpers.findInfo
-import com.r3.developers.csdetemplate.digitalcurrency.states.Mortgage
 import com.r3.developers.csdetemplate.digitalcurrency.states.BundleOfMortgages
 import net.corda.v5.application.flows.ClientRequestBody
 import net.corda.v5.application.flows.ClientStartableFlow

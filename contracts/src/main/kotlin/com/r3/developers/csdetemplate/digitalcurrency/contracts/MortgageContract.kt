@@ -10,10 +10,10 @@ class MortgageContract: Contract {
 
     class Issue: Command
     class Sell: Command
-    class Payoff: Command
+    class Bundle: Command
 
     override fun verify(transaction: UtxoLedgerTransaction) {
-        val command = transaction.commands.firstOrNull { it is Issue || it is Sell || it is Payoff }
+        val command = transaction.commands.firstOrNull { it is Issue || it is Sell || it is Bundle }
             ?: throw CordaRuntimeException("Requires a single Mortgage command")
 
         when(command) {
@@ -38,8 +38,8 @@ class MortgageContract: Contract {
                 "When command is Sell there must be exactly one participants." using (
                         transaction.outputContractStates.all { it.participants.size == 1 })
             }
-            is Payoff -> {
-                //TODO
+            is Bundle -> {
+                //no checks
             }
             else -> {
                 throw CordaRuntimeException("Command ${command} not allowed.")

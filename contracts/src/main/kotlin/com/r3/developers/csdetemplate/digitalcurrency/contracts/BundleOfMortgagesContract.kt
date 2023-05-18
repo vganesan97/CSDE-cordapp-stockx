@@ -1,6 +1,7 @@
 package com.r3.developers.csdetemplate.digitalcurrency.contracts
 
 import com.r3.developers.csdetemplate.digitalcurrency.states.BundleOfMortgages
+import com.r3.developers.csdetemplate.digitalcurrency.states.Mortgage
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.ledger.utxo.Command
 import net.corda.v5.ledger.utxo.Contract
@@ -16,7 +17,10 @@ class BundleOfMortgagesContract: Contract {
 
         when(command) {
             is Create -> {
-                "When command is Create there should be one and only one output state." using (transaction.outputContractStates.size == 1)
+                "When command is Create there should be at least one output state." using (transaction.outputContractStates.size >= 1)
+
+                val targetMortgages = transaction.inputContractStates.filterIsInstance<Mortgage>()
+                "At least one target mortgage has already been bundled." using targetMortgages.all { mortgage -> !mortgage.bundled }
 
                 "The output state should have only 1 participant." using {
                     val output = transaction.outputContractStates.first() as BundleOfMortgages

@@ -1,7 +1,6 @@
 package com.r3.developers.csdetemplate.digitalcurrency.states
 
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.MortgageContract
-import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.utxo.BelongsToContract
 import net.corda.v5.ledger.utxo.ContractState
 import java.security.PublicKey
@@ -18,6 +17,7 @@ data class Mortgage(
     val condition: String,
     val creditQualityRating: String,
     val listingDetails: String,
+    val bundled: Boolean = false,
     private val participants: List<PublicKey>) : ContractState {
     override fun getParticipants(): List<PublicKey> {
         return listOf(owner)
@@ -25,4 +25,7 @@ data class Mortgage(
 
     fun newOwner(newOwner: PublicKey) =
         copy(owner = newOwner)
+
+    fun bundled() =
+        copy(bundled = true)
 }
