@@ -3,7 +3,7 @@
 		"_postman_id": "63c998fe-c6ea-4ed6-846b-18318c9cf509",
 		"name": "CSDE-digital-currency",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "12846281"
+		"_exporter_id": "118271"
 	},
 	"item": [
 		{
@@ -972,6 +972,156 @@
 						"flow",
 						"{{holdingIdentityShortHash-Alice}}",
 						"{{clientRequestIdPrevious-sellMortgage}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Bundle Mortgage Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-bundleMortgage\")",
+							"pm.environment.set(\"clientRequestIdPrevious-bundleMortgage\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-bundleMortgage\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-bundleMortgage}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.CreateBundleOfMortgagesFlow\",\n    \"requestBody\": {\n        \"mortgageIds\":[\"f4f6878d-fdd1-4a7b-bc68-d32d050b9f8f\"]\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Bundle Mortgage Flow Status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}/{{clientRequestIdPrevious-bundleMortgage}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}",
+						"{{clientRequestIdPrevious-bundleMortgage}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Bundles Flow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"requestId = pm.environment.get(\"clientRequestIdNext-listBundles\")",
+							"pm.environment.set(\"clientRequestIdPrevious-listBundles\", requestId);",
+							"",
+							"let regex = /\\d+/g; // matches all digits in the string",
+							"requestId = requestId.replace(regex, function(match) {",
+							"  return Number(match) + 1; // increment the matched number by 1",
+							"});",
+							"",
+							"pm.environment.set(\"clientRequestIdNext-listBundles\", requestId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"clientRequestId\": \"{{clientRequestIdNext-listBundles}}\",\n    \"flowClassName\": \"com.r3.developers.csdetemplate.digitalcurrency.workflows.ListBundleOfMortgagesFlow\",\n    \"requestBody\": {}\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Bundle Flow Status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8888/api/v1/flow/{{holdingIdentityShortHash-Alice}}/{{clientRequestIdPrevious-listBundles}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"v1",
+						"flow",
+						"{{holdingIdentityShortHash-Alice}}",
+						"{{clientRequestIdPrevious-listBundles}}"
 					]
 				}
 			},

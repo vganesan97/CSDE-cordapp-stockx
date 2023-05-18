@@ -2,24 +2,18 @@ package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.BundleOfMortgagesContract
 import com.r3.developers.csdetemplate.digitalcurrency.states.BundleOfMortgages
-import com.r3.developers.csdetemplate.digitalcurrency.states.Mortgage
 import net.corda.v5.application.flows.*
 import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
-import net.corda.v5.base.types.MemberX500Name
-import java.security.PublicKey
 import java.time.Duration
 import java.time.Instant
 import java.util.*
 
-data class CreateBundleOfMortgages(
-    val morgages: List<Mortgage>
-    )
-
+data class CreateBundleOfMortgages(val mortgageIds: List<UUID>)
 
 @InitiatingFlow(protocol = "finalize-create-bundle-protocol")
-class CreateBundleOfMortgagesFlow (private val flowSessions: List<FlowSession>): AbstractFlow(), ClientStartableFlow {
+class CreateBundleOfMortgagesFlow: AbstractFlow(), ClientStartableFlow {
 
     @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
@@ -28,39 +22,35 @@ class CreateBundleOfMortgagesFlow (private val flowSessions: List<FlowSession>):
             val flowArgs = requestBody.getRequestBodyAs(json, CreateBundleOfMortgages::class.java)
 
             val myInfo = memberLookup.myInfo()
-//            val owner = memberLookup.lookup(MemberX500Name.parse(flowArgs.owner)) ?:
-//                throw CordaRuntimeException("MemberLookup can't find owner specified in flow arguments.")
 
             val bundle = BundleOfMortgages(
                 bundleId = UUID.randomUUID(),
                 myInfo.ledgerKeys.first(),
-                flowArgs.morgages,
-
+                flowArgs.mortgageIds,
                 participants = listOf(myInfo.ledgerKeys.first()))
 
             val notary = notaryLookup.notaryServices.single()
-
-            val signatories = mutableListOf<PublicKey>(myInfo.ledgerKeys.first())
-//            signatories.union(mortgage.participants)
 
             val txBuilder = ledgerService.createTransactionBuilder()
                 .setNotary(notary.name)
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
                 .addOutputState(bundle)
                 .addCommand(BundleOfMortgagesContract.Create())
-                .addSignatories(signatories)
+                .addSignatories(myInfo.ledgerKeys.first())
 
             val selfSignedTransaction = txBuilder.toSignedTransaction()
 
+            val session = flowMessaging.initiateFlow(myInfo.name)
+
             val finalizedSignedTransaction = ledgerService.finalize(
-                selfSignedTransaction, flowSessions)
+                selfSignedTransaction, listOf(session))
 
             return finalizedSignedTransaction.transaction.id.toString().also {
                 logger.info("Successful ${selfSignedTransaction.commands.first()} with response: $it")
             }
         }
         catch (e: Exception) {
-            logger.warn("Failed to process issue mortgage for request body '$requestBody' with exception: '${e.message}'")
+            logger.warn("Failed to process bundle mortgage for request body '$requestBody' with exception: '${e.message}'")
             throw e
         }
     }
