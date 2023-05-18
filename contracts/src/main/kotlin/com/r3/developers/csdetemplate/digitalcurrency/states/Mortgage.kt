@@ -13,11 +13,11 @@ data class Mortgage(
     val mortgageId: UUID,
     val owner: PublicKey,
     val interestRate: Double,
-    val fixedIR: Boolean,
+    val fixedInterestRate: Boolean,
     val loanToValue: Double,
     val condition: String,
     val creditQualityRating: String,
-    val listingDetails: Boolean,
+    val listingDetails: String,
     private val participants: List<PublicKey>) : ContractState {
     override fun getParticipants(): List<PublicKey> {
         return listOf(owner)

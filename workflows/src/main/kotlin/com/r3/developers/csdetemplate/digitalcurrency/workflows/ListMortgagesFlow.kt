@@ -13,7 +13,7 @@ import net.corda.v5.ledger.utxo.UtxoLedgerService
 import org.slf4j.LoggerFactory
 import java.util.*
 
-data class MortgagesStateResults(val address: String, val mortgageId: UUID, val owner: MemberX500Name, val interestRate: Double, val fixedIR: Boolean, val loanToValue: Double, val condition: String, val creditQualityRating: String, val listingDetails: Boolean)
+data class MortgagesStateResults(val address: String, val mortgageId: UUID, val owner: MemberX500Name, val interestRate: Double, val fixedInterestRate: Boolean, val loanToValue: Double, val condition: String, val creditQualityRating: String, val listingDetails: String)
 
 class ListMortgagesFlow : ClientStartableFlow {
     private companion object {
@@ -45,7 +45,7 @@ class ListMortgagesFlow : ClientStartableFlow {
                 it.state.contractState.mortgageId,
                 memberLookup.findInfo(it.state.contractState.owner).name,
                 it.state.contractState.interestRate,
-                it.state.contractState.fixedIR,
+                it.state.contractState.fixedInterestRate,
                 it.state.contractState.loanToValue,
                 it.state.contractState.condition,
                 it.state.contractState.creditQualityRating,

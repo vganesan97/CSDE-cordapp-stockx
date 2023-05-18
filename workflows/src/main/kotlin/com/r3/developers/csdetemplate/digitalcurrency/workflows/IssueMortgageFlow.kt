@@ -11,7 +11,14 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 
-data class IssueMortgage(val address: String, val owner: String, val interestRate: Double, val fixedIR: Boolean, val loanToValue: Double, val condition: String, val creditQualityRating: String, val listingDetails: Boolean)
+data class IssueMortgage(val address: String,
+                         val owner: String,
+                         val interestRate: Double,
+                         val fixedInterestRate: Boolean,
+                         val loanToValue: Double,
+                         val condition: String,
+                         val creditQualityRating: String,
+                         val listingDetails: String)
 
 @InitiatingFlow(protocol = "finalize-issue-mortgage-protocol")
 class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
@@ -30,13 +37,11 @@ class IssueMortgageFlow: AbstractFlow(), ClientStartableFlow {
                 mortgageId = UUID.randomUUID(),
                 owner.ledgerKeys.first(),
                 flowArgs.interestRate,
-                flowArgs.fixedIR,
+                flowArgs.fixedInterestRate,
                 flowArgs.loanToValue,
                 flowArgs.condition,
                 flowArgs.creditQualityRating,
                 flowArgs.listingDetails,
-
-
 
                 participants = listOf(myInfo.ledgerKeys.first(), owner.ledgerKeys.first()))
 
