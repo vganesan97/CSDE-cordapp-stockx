@@ -7,6 +7,7 @@ import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
+import java.security.PublicKey
 import java.time.Duration
 import java.time.Instant
 
@@ -33,13 +34,16 @@ class IssueDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {
 
             val notary = notaryLookup.notaryServices.single()
 
+            val signatories = mutableListOf<PublicKey>(myInfo.ledgerKeys.first())
+            signatories.union(digitalCurrency.participants)
+
             val txBuilder = ledgerService.createTransactionBuilder()
                 .setNotary(notary.name)
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
                 .addOutputState(digitalCurrency)
                 .addCommand(DigitalCurrencyContract.Issue())
                 .addSignatories(digitalCurrency.participants)
-                .addSignatories(myInfo.ledgerKeys.first())
+                .addSignatories(signatories)
 
             val signedTransaction = txBuilder.toSignedTransaction()
 
