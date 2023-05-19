@@ -37,8 +37,8 @@ class CreateBundleOfMortgagesFlow: AbstractFlow(), ClientStartableFlow {
 
             if(targetMortgages.isEmpty()) throw CordaRuntimeException("Found no mortgages to bundle.")
 
-            val bundledMortgages = targetMortgages.map { bundle ->
-                bundle.state.contractState.bundled()
+            val bundledMortgages = targetMortgages.map { mortgage ->
+                mortgage.state.contractState.bundled()
             }
 
             val notary = notaryLookup.notaryServices.single()

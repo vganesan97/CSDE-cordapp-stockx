@@ -19,11 +19,8 @@ class BundleOfMortgagesContract: Contract {
             is Create -> {
                 "When command is Create there should be at least one output state." using (transaction.outputContractStates.size >= 1)
 
-                val targetMortgages = transaction.inputContractStates.filterIsInstance<Mortgage>()
-                "At least one target mortgage has already been bundled." using targetMortgages.all { mortgage -> !mortgage.bundled }
-
                 "The output state should have only 1 participant." using {
-                    val output = transaction.outputContractStates.first() as BundleOfMortgages
+                    val output = transaction.outputContractStates.filterIsInstance(BundleOfMortgages::class.java).first()
                     output.participants.size==1
                 }
             }

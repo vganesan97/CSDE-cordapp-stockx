@@ -39,7 +39,8 @@ class MortgageContract: Contract {
                         transaction.outputContractStates.all { it.participants.size == 1 })
             }
             is Bundle -> {
-                //no checks
+                val targetMortgages = transaction.inputContractStates.filterIsInstance<Mortgage>()
+                "At least one target mortgage has already been bundled." using targetMortgages.all { mortgage -> !mortgage.bundled }
             }
             else -> {
                 throw CordaRuntimeException("Command ${command} not allowed.")
