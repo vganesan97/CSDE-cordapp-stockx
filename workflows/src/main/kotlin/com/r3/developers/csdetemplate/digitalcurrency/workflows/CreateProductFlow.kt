@@ -1,5 +1,7 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
+import com.r3.developers.csdetemplate.digitalcurrency.contracts.MortgageContract
+import com.r3.developers.csdetemplate.digitalcurrency.contracts.ProductContract
 import com.r3.developers.csdetemplate.digitalcurrency.states.Product
 import net.corda.v5.application.flows.ClientRequestBody
 import net.corda.v5.application.flows.ClientStartableFlow
@@ -8,6 +10,8 @@ import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
 import java.security.PublicKey
+import java.time.Duration
+import java.time.Instant
 import java.util.UUID
 
 data class CreateProduct(val owner: String,
@@ -39,10 +43,25 @@ class CreateProductFlow(): AbstractFlow(), ClientStartableFlow {
 
             val notary = notaryLookup.notaryServices.single()
             val signatories = mutableListOf<PublicKey>(myInfo.ledgerKeys.first()).union(product.participants)
-//            val txBuilder = ledgerService.createTransactionBuilder()
-//                .setNotary(notary.name)
-//                .set
-            return ""
+
+            val txBuilder = ledgerService.createTransactionBuilder()
+                .setNotary(notary.name)
+                .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
+                .addOutputState(product)
+                .addCommand(ProductContract.Create())
+                .addSignatories(signatories)
+
+            val signedTransaction = txBuilder.toSignedTransaction()
+
+            val session = flowMessaging.initiateFlow(owner.name)
+
+            val finalizedSignedTransaction = ledgerService.finalize(
+                signedTransaction,
+                listOf(session)
+            )
+            return finalizedSignedTransaction.transaction.id.toString().also {
+                logger.info("Successful ${signedTransaction.commands.first()} with response: $it")
+            }
         }
         catch (e: Exception) {
             logger.warn("create product failed")

@@ -13,7 +13,7 @@ class ProductContract: Contract {
 
     override fun verify(transaction: UtxoLedgerTransaction) {
         val command = transaction.commands.firstOrNull { it is Create || it is Sell }
-            ?: throw CordaRuntimeException("Requires a single Mortgage command")
+            ?: throw CordaRuntimeException("Requires a single Product command")
 /**/
         when(command) {
             is Create -> {
