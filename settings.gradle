@@ -20,7 +20,7 @@ pluginManagement {
 }
 
 // Root project name, used in naming the project as a whole and used in naming objects built by the project.
-rootProject.name = 'csde-cordapp-digital-currency'
+rootProject.name = 'csde-cordapp-stockx'
 include ':workflows'
 include ':contracts'
 
