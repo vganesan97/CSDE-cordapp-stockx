@@ -32,9 +32,11 @@ class BuyProductFlow: AbstractFlow(), ClientStartableFlow {
                 ?: throw CordaRuntimeException("Product not found")
 
             val product = productStateAndRef.state.contractState
+            val updatedProduct = product.copy(saleRequested = true)
 
             val saleRequest = SaleRequest(
                 product.productId,
+                product.price,
                 buyer.ledgerKeys.first(),
                 product.owner,
                 participants = listOf(buyer.ledgerKeys.first(), product.owner)
@@ -48,7 +50,9 @@ class BuyProductFlow: AbstractFlow(), ClientStartableFlow {
             val txBuilder = ledgerService.createTransactionBuilder()
                 .setNotary(notary.name)
                 .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
+                .addInputState(productStateAndRef.ref)
                 .addOutputState(saleRequest)
+                .addOutputState(updatedProduct)
                 .addCommand(SaleRequestContract.Create())
                 .addSignatories(signatories)
 
@@ -91,6 +95,8 @@ class BuyProductResponderFlow: AbstractFlow(), ResponderFlow {
 
                 logger.info("Verified the transaction- ${ledgerTransaction.id}")
             }
+            val outputSaleRequest = finalizedSignedTransaction.transaction.outputStateAndRefs.filterIsInstance<SaleRequest>().first()
+            logger.info("Seller received sale request for product id ${outputSaleRequest.productId}")
             logger.info("Seller received sale request for product id ${finalizedSignedTransaction.transaction.id}")
         } catch (e: Exception) {
             logger.warn("Buy Product responder flow failed with exception", e)

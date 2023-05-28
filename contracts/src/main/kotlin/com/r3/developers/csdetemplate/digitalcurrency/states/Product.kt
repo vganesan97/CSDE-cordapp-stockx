@@ -14,6 +14,7 @@ data class Product (
     val listingDetails: String,
     val condition: String,
     val price: Double,
+    val saleRequested: Boolean = false,
     private val participants: List<PublicKey>) : ContractState {
     override fun getParticipants(): List<PublicKey> {
         return listOf(owner)

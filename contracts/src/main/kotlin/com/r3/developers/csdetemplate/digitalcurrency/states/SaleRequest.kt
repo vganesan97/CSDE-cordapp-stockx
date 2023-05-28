@@ -10,8 +10,10 @@ import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Public
 @BelongsToContract(SaleRequestContract::class)
 data class SaleRequest(
     val productId: UUID,
+    val price: Double,
     val buyer: PublicKey,
     val owner: PublicKey,
+    val accepted: Boolean = false,
     val participants: List<PublicKey> = listOf(buyer, owner)
 ) : ContractState {
     override fun getParticipants(): List<PublicKey> = participants

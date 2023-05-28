@@ -1,6 +1,7 @@
 package com.r3.developers.csdetemplate.digitalcurrency.contracts
 
 import com.r3.developers.csdetemplate.digitalcurrency.states.Mortgage
+import com.r3.developers.csdetemplate.digitalcurrency.states.Product
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.ledger.utxo.Command
 import net.corda.v5.ledger.utxo.Contract
@@ -17,11 +18,11 @@ class ProductContract: Contract {
 /**/
         when(command) {
             is Create -> {
-                "When command is Issue there should be no input states." using (transaction.inputContractStates.isEmpty())
-                "When command is Issue there should be one and only one output state." using (transaction.outputContractStates.size == 1)
+                "When command is Create there should be no input states." using (transaction.inputContractStates.isEmpty())
+                "When command is Create there should be one and only one output state." using (transaction.outputContractStates.size == 1)
 
                 "The output state should have only 1 participant." using {
-                    val output = transaction.outputContractStates.first() as Mortgage
+                    val output = transaction.outputContractStates.filterIsInstance<Product>().first()
                     output.participants.size==1
                 }
             }
@@ -33,6 +34,18 @@ class ProductContract: Contract {
                 val receivedMortgage = transaction.outputContractStates.filterIsInstance<Mortgage>().first()
                 "When command is Sell the new owner should be different than the current owner." using (
                         sentMortgage.owner != receivedMortgage.owner)
+
+                "When command is Sell there must be exactly one participants." using (
+                        transaction.outputContractStates.all { it.participants.size == 1 })
+            }
+            is Sell -> {
+                "When command is Sell there should be at least two input states." using (transaction.inputContractStates.size >= 2)
+                "When command is Sell there should be at least two output states." using (transaction.outputContractStates.size >= 2)
+
+                val sentProduct = transaction.inputContractStates.filterIsInstance<Product>().first()
+                val receivedProduct = transaction.outputContractStates.filterIsInstance<Product>().first()
+                "When command is Sell the new owner should be different than the current owner." using (
+                        sentProduct.owner != receivedProduct.owner)
 
                 "When command is Sell there must be exactly one participants." using (
                         transaction.outputContractStates.all { it.participants.size == 1 })
