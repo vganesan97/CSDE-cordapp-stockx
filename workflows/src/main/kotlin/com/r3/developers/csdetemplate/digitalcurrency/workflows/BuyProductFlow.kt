@@ -8,7 +8,6 @@ import net.corda.v5.application.flows.*
 import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
-import net.corda.v5.base.types.MemberX500Name
 import java.security.PublicKey
 import java.time.Duration
 import java.time.Instant
@@ -38,8 +37,7 @@ class BuyProductFlow: AbstractFlow(), ClientStartableFlow {
                 product.productId,
                 product.price,
                 buyer.ledgerKeys.first(),
-                product.owner,
-                participants = listOf(buyer.ledgerKeys.first(), product.owner)
+                product.owner
             )
 
             val notary = notaryLookup.notaryServices.single()

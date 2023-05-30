@@ -3,9 +3,8 @@ package com.r3.developers.csdetemplate.digitalcurrency.workflows
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.MortgageContract
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.ProductContract
 import com.r3.developers.csdetemplate.digitalcurrency.states.Product
-import net.corda.v5.application.flows.ClientRequestBody
-import net.corda.v5.application.flows.ClientStartableFlow
-import net.corda.v5.application.flows.InitiatingFlow
+import net.corda.v5.application.flows.*
+import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.base.types.MemberX500Name
@@ -32,7 +31,7 @@ class CreateProductFlow(): AbstractFlow(), ClientStartableFlow {
             val myInfo = memberLookup.myInfo()
             val owner =  memberLookup.lookup(MemberX500Name.parse(flowArgs.owner)) ?:
                 throw CordaRuntimeException("MemberLookup can't find owner specified in flow arguments.")
-
+            //val x = memberLookup.
             val product = Product(owner.ledgerKeys.first(),
                 productId = UUID.randomUUID(),
                 flowArgs.name,
@@ -69,3 +68,27 @@ class CreateProductFlow(): AbstractFlow(), ClientStartableFlow {
         }
     }
 }
+
+@InitiatedBy(protocol = "finalize-create-product-flow")
+class FinalizeCreateProductResponderFlow: AbstractFlow(), ResponderFlow {
+
+    @Suspendable
+    override fun call(session: FlowSession) {
+        logger.info("${this::class.java.enclosingClass}.call() called")
+
+        try {
+            val finalizedSignedTransaction = ledgerService.receiveFinality(session) { ledgerTransaction ->
+                val state = ledgerTransaction.getOutputStates(Product::class.java).singleOrNull() ?:
+                throw CordaRuntimeException("Failed verification - transaction did not have exactly one output Product.")
+
+                logger.info("Verified the transaction- ${ledgerTransaction.id}")
+            }
+            logger.info("Finished create product responder flow - ${finalizedSignedTransaction.transaction.id}")
+        }
+        catch (e: Exception) {
+            logger.warn("Create Product responder flow failed with exception", e)
+            throw e
+        }
+    }
+}
+

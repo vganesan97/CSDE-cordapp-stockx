@@ -30,18 +30,6 @@ class ProductContract: Contract {
                 "When command is Sell there should be at least two input states." using (transaction.inputContractStates.size >= 2)
                 "When command is Sell there should be at least two output states." using (transaction.outputContractStates.size >= 2)
 
-                val sentMortgage = transaction.inputContractStates.filterIsInstance<Mortgage>().first()
-                val receivedMortgage = transaction.outputContractStates.filterIsInstance<Mortgage>().first()
-                "When command is Sell the new owner should be different than the current owner." using (
-                        sentMortgage.owner != receivedMortgage.owner)
-
-                "When command is Sell there must be exactly one participants." using (
-                        transaction.outputContractStates.all { it.participants.size == 1 })
-            }
-            is Sell -> {
-                "When command is Sell there should be at least two input states." using (transaction.inputContractStates.size >= 2)
-                "When command is Sell there should be at least two output states." using (transaction.outputContractStates.size >= 2)
-
                 val sentProduct = transaction.inputContractStates.filterIsInstance<Product>().first()
                 val receivedProduct = transaction.outputContractStates.filterIsInstance<Product>().first()
                 "When command is Sell the new owner should be different than the current owner." using (
@@ -50,10 +38,7 @@ class ProductContract: Contract {
                 "When command is Sell there must be exactly one participants." using (
                         transaction.outputContractStates.all { it.participants.size == 1 })
             }
-//            is Bundle -> {
-//                val targetMortgages = transaction.inputContractStates.filterIsInstance<Mortgage>()
-//                "At least one target mortgage has already been bundled." using targetMortgages.all { mortgage -> !mortgage.bundled }
-//            }
+
             else -> {
                 throw CordaRuntimeException("Command ${command} not allowed.")
             }
