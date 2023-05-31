@@ -118,7 +118,7 @@ class FinalizeSellProductResponderSubFlow: AbstractFlow(), ResponderFlow {
 
             val availableTokens = ledgerService.findUnconsumedStatesByType(DigitalCurrency::class.java)
             val coinSelection = CoinSelection()
-            val (currencyToSpend, spentCurrency) = coinSelection.selectTokensForTransfer(price.toInt(),
+            val (currencyToSpend, spentCurrency) = coinSelection.selectTokensForTransfer(price.toDouble(),
                 buyer.ledgerKeys.first(),
                 seller.ledgerKeys.first(),
                 availableTokens)

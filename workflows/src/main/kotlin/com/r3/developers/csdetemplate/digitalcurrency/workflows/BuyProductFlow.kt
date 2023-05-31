@@ -1,5 +1,6 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
+import com.r3.developers.csdetemplate.digitalcurrency.contracts.ProductContract
 import com.r3.developers.csdetemplate.digitalcurrency.states.Product
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.SaleRequestContract
 import com.r3.developers.csdetemplate.digitalcurrency.helpers.findInfo
@@ -37,7 +38,8 @@ class BuyProductFlow: AbstractFlow(), ClientStartableFlow {
                 product.productId,
                 product.price,
                 buyer.ledgerKeys.first(),
-                product.owner
+                product.owner,
+                participants = listOf(product.owner)
             )
 
             val notary = notaryLookup.notaryServices.single()
@@ -52,6 +54,7 @@ class BuyProductFlow: AbstractFlow(), ClientStartableFlow {
                 .addOutputState(saleRequest)
                 .addOutputState(updatedProduct)
                 .addCommand(SaleRequestContract.Create())
+                .addCommand(ProductContract.RequestSale())
                 .addSignatories(signatories)
 
             val owner = memberLookup.findInfo(product.owner)
@@ -93,8 +96,8 @@ class BuyProductResponderFlow: AbstractFlow(), ResponderFlow {
 
                 logger.info("Verified the transaction- ${ledgerTransaction.id}")
             }
-            val outputSaleRequest = finalizedSignedTransaction.transaction.outputStateAndRefs.filterIsInstance<SaleRequest>().first()
-            logger.info("Seller received sale request for product id ${outputSaleRequest.productId}")
+            //val outputSaleRequest = finalizedSignedTransaction.transaction.outputStateAndRefs.filterIsInstance<SaleRequest>().first()
+           // logger.info("Seller received sale request for product id ${outputSaleRequest.productId}")
             logger.info("Seller received sale request for product id ${finalizedSignedTransaction.transaction.id}")
         } catch (e: Exception) {
             logger.warn("Buy Product responder flow failed with exception", e)

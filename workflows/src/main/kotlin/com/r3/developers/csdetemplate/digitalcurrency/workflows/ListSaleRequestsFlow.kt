@@ -1,5 +1,6 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
+import com.r3.developers.csdetemplate.digitalcurrency.helpers.findInfo
 import com.r3.developers.csdetemplate.digitalcurrency.states.SaleRequest
 import net.corda.v5.application.flows.ClientRequestBody
 import net.corda.v5.application.flows.ClientStartableFlow
@@ -7,6 +8,7 @@ import net.corda.v5.application.flows.CordaInject
 import net.corda.v5.application.marshalling.JsonMarshallingService
 import net.corda.v5.application.membership.MemberLookup
 import net.corda.v5.base.annotations.Suspendable
+import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.utxo.UtxoLedgerService
 import org.slf4j.LoggerFactory
 import java.security.PublicKey
@@ -15,8 +17,8 @@ import java.util.UUID
 data class SaleRequestResults(
     val productId: UUID,
     val price: Double,
-    val buyer: PublicKey,
-    val owner: PublicKey,
+    val buyer: MemberX500Name,
+    val owner: MemberX500Name,
     val accepted: Boolean)
 
 class ListSaleRequestsFlow: ClientStartableFlow {
@@ -48,8 +50,8 @@ class ListSaleRequestsFlow: ClientStartableFlow {
             SaleRequestResults(
                 it.state.contractState.productId,
                 it.state.contractState.price,
-                it.state.contractState.buyer,
-                it.state.contractState.owner,
+                memberLookup.findInfo(it.state.contractState.buyer).name,
+                memberLookup.findInfo(it.state.contractState.owner).name,
                 it.state.contractState.accepted)
         }
 

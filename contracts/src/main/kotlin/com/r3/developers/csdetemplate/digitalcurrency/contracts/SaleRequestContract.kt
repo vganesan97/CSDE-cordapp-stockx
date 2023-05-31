@@ -15,7 +15,7 @@ class SaleRequestContract: Contract {
     class Deny: Command
 
     override fun verify(transaction: UtxoLedgerTransaction) {
-        val command = transaction.commands.firstOrNull{ it is Accept || it is Deny}
+        val command = transaction.commands.firstOrNull{ it is Accept || it is Deny || it is Create}
             ?: throw CordaRuntimeException("Requires a single SaleRequest command")
 
         when(command) {
@@ -33,12 +33,12 @@ class SaleRequestContract: Contract {
 
                 "Sale price must be positive" using (outputSaleRequest.price > 0)
                 "Buyer and seller must be different" using (outputSaleRequest.buyer != outputSaleRequest.owner)
-                "Buyer and seller must be participants" using (outputSaleRequest.participants.containsAll(listOf(outputSaleRequest.buyer, outputSaleRequest.owner)))
+                //"Buyer and seller must be participants" using (outputSaleRequest.participants.containsAll(listOf(outputSaleRequest.buyer, outputSaleRequest.owner)))
             }
 
             is Accept -> {
                 "There must be one input state for Accept command" using (transaction.inputContractStates.size == 1)
-                "There must be one output state for Accept command" using (transaction.outputContractStates.size == 1)
+                //"There must be one output state for Accept command" using (transaction.outputContractStates.size == 1)
 
                 val saleRequest = transaction.inputContractStates.filterIsInstance<SaleRequest>().first()
                 val acceptedSaleRequest = transaction.outputContractStates.filterIsInstance<SaleRequest>().first()

@@ -7,6 +7,8 @@ import net.corda.v5.application.flows.*
 import net.corda.v5.application.messaging.FlowSession
 import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.exceptions.CordaRuntimeException
+import java.time.Duration
+import java.time.Instant
 import java.util.UUID
 
 data class ApproveSaleRequest(val productId: UUID)
@@ -39,8 +41,10 @@ class ApproveSaleRequestFlow: AbstractFlow(), ClientStartableFlow {
             // Build the transaction
             val txBuilder = ledgerService.createTransactionBuilder()
                 .setNotary(notary.name)
+                .setTimeWindowBetween(Instant.now(), Instant.now().plusMillis(Duration.ofDays(1).toMillis()))
                 .addInputState(saleRequestStateAndRef.ref)
                 .addCommand(SaleRequestContract.Accept())
+                .addOutputState(saleRequest.copy(accepted = true))
                 .addSignatories(listOf(approver.ledgerKeys.first()))
 
             // Sign and finalize the transaction
@@ -87,8 +91,8 @@ class ApproveSaleRequestResponderFlow: AbstractFlow(), ResponderFlow {
 
                 logger.info("Verified the transaction- ${ledgerTransaction.id}")
             }
-            val outputSaleRequest = finalizedSignedTransaction.transaction.outputStateAndRefs.filterIsInstance<SaleRequest>().first()
-            logger.info("Buyer received approval for sale request with productId ${outputSaleRequest.productId}")
+           // val outputSaleRequest = finalizedSignedTransaction.transaction.outputStateAndRefs.filterIsInstance<SaleRequest>().first()
+           // logger.info("Buyer received approval for sale request with productId ${outputSaleRequest.productId}")
             logger.info("Transaction id for the approval ${finalizedSignedTransaction.transaction.id}")
         } catch (e: Exception) {
             logger.warn("Approve Sale Request responder flow failed with exception", e)

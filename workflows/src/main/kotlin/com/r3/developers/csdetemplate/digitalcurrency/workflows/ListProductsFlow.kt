@@ -41,14 +41,13 @@ class ListProductsFlow: ClientStartableFlow {
         log.warn("ListProductsFlow.call() called")
 
         val queryingMember = memberLookup.myInfo()
-        log.warn("before ledger service")
-        log.warn("ledger service mortgage ${ledgerService.findUnconsumedStatesByType(Mortgage::class.java)}")
-        log.warn("ledger service ${ledgerService.findUnconsumedStatesByType(Product::class.java)}")
-        log.warn("after ledger service")
+        val states1 = ledgerService.findUnconsumedStatesByType(Product::class.java)
+            .filter { it.state.contractState.owner == queryingMember.ledgerKeys.first() }
 
-        val states = ledgerService.findUnconsumedStatesByType(Product::class.java).filter { products ->
-            products.state.contractState.owner == queryingMember.ledgerKeys.first()
-        }
+
+        log.warn("all member info: ${memberLookup.lookup().map{it.name.toString()}}")
+        val states = ledgerService.findUnconsumedStatesByType(Product::class.java)
+
         val results = states.map {
             ProductsStateResults(
                 it.state.contractState.productId,

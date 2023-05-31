@@ -27,18 +27,25 @@ class CreateProductFlow(): AbstractFlow(), ClientStartableFlow {
         logger.info("${this::class.java.enclosingClass}.call() called")
         try {
             val flowArgs = requestBody.getRequestBodyAs(json, CreateProduct::class.java)
-
             val myInfo = memberLookup.myInfo()
             val owner =  memberLookup.lookup(MemberX500Name.parse(flowArgs.owner)) ?:
                 throw CordaRuntimeException("MemberLookup can't find owner specified in flow arguments.")
-            //val x = memberLookup.
+
+            val allNodePks = memberLookup.lookup()
+                .filter { !it.name.toString().contains("NotaryRep1") }
+                .map { it.ledgerKeys.first() }
+            val allNodes = memberLookup.lookup()
+
+            logger.warn("all node pks: ${allNodePks}")
             val product = Product(owner.ledgerKeys.first(),
                 productId = UUID.randomUUID(),
                 flowArgs.name,
                 flowArgs.listingDetails,
                 flowArgs.condition,
                 flowArgs.price,
-                participants = listOf(myInfo.ledgerKeys.first(), owner.ledgerKeys.first()))
+                participants = allNodePks)
+
+            logger.warn("prod participants: ${product.participants}")
 
             val notary = notaryLookup.notaryServices.single()
             val signatories = mutableListOf<PublicKey>(myInfo.ledgerKeys.first()).union(product.participants)
@@ -50,14 +57,39 @@ class CreateProductFlow(): AbstractFlow(), ClientStartableFlow {
                 .addCommand(ProductContract.Create())
                 .addSignatories(signatories)
 
+            // List to hold all the flow sessions
+            val sessions = mutableListOf<FlowSession>()
+
+            // Initiate a flow session with each participant
+            for (participant in product.participants) {
+                logger.warn("participant: ${participant}")
+                val node = memberLookup.lookup(participant)
+                if (node != null) {
+                    logger.warn("flow session initiated for ${node.name}")
+                    sessions.add(flowMessaging.initiateFlow(node.name))
+                }
+            }
+
+//            // Finalize the transaction
+//            val finalizedSignedTransaction = ledgerService.finalize(
+//                signedTransaction,
+//                sessions
+//            )
+//
+//            val signedTransaction = txBuilder.toSignedTransaction()
+//
+//            val session = flowMessaging.initiateFlow(owner.name)
+//
+//            val finalizedSignedTransaction = ledgerService.finalize(
+//                signedTransaction,
+//                listOf(session)
+//            )
+
             val signedTransaction = txBuilder.toSignedTransaction()
 
-            val session = flowMessaging.initiateFlow(owner.name)
+            // Sign the transaction and collect signatures from all participants
+            val finalizedSignedTransaction = ledgerService.finalize(signedTransaction, sessions)
 
-            val finalizedSignedTransaction = ledgerService.finalize(
-                signedTransaction,
-                listOf(session)
-            )
             return finalizedSignedTransaction.transaction.id.toString().also {
                 logger.info("Successful ${signedTransaction.commands.first()} with response: $it")
             }

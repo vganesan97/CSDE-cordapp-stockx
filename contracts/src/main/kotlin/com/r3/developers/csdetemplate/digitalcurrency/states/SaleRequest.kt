@@ -14,7 +14,9 @@ data class SaleRequest(
     val buyer: PublicKey,
     val owner: PublicKey,
     val accepted: Boolean = false,
-    val participants: List<PublicKey> = listOf(buyer, owner)
+    private val participants: List<PublicKey>
 ) : ContractState {
-    override fun getParticipants(): List<PublicKey> = participants
+    override fun getParticipants(): List<PublicKey> {
+        return participants
+    }
 }

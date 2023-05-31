@@ -17,7 +17,7 @@ data class Product (
     val saleRequested: Boolean = false,
     private val participants: List<PublicKey>) : ContractState {
     override fun getParticipants(): List<PublicKey> {
-        return listOf(owner)
+        return participants
     }
 
     fun newOwner(newOwner: PublicKey) =
