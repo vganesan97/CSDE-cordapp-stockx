@@ -1,6 +1,6 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
-import CoinSelection
+import com.r3.developers.csdetemplate.digitalcurrency.helpers.CoinSelection
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.DigitalCurrencyContract
 import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import net.corda.v5.application.flows.*

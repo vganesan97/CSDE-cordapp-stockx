@@ -1,3 +1,5 @@
+package com.r3.developers.csdetemplate.digitalcurrency.helpers
+
 import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.ledger.utxo.StateAndRef

@@ -1,15 +1,12 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
-import CoinSelection
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.DigitalCurrencyContract
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.ProductContract
+import com.r3.developers.csdetemplate.digitalcurrency.helpers.CoinSelection
 import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import com.r3.developers.csdetemplate.digitalcurrency.states.Product
 import com.r3.developers.csdetemplate.digitalcurrency.workflows.AbstractFlow.Companion.logger
 import net.corda.v5.application.flows.*
-import net.corda.v5.application.flows.FlowContextProperties
-import net.corda.v5.application.flows.InitiatingFlow
-import net.corda.v5.application.flows.SubFlow
 import net.corda.v5.application.membership.MemberLookup
 import net.corda.v5.application.messaging.FlowMessaging
 import net.corda.v5.application.messaging.FlowSession
@@ -20,7 +17,7 @@ import net.corda.v5.ledger.utxo.UtxoLedgerService
 import java.security.PublicKey
 import java.time.Duration
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 @InitiatingFlow(protocol = "sell-product-protocol")
 class SellProductSubFlow(
