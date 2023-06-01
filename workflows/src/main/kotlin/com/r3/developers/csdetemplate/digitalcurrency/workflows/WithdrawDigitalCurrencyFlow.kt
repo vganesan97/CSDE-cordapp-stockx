@@ -1,7 +1,7 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
+import CoinSelection
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.DigitalCurrencyContract
-import com.r3.developers.csdetemplate.digitalcurrency.helpers.CoinSelection
 import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import net.corda.v5.application.flows.*
 import net.corda.v5.application.messaging.FlowSession
@@ -10,7 +10,7 @@ import net.corda.v5.base.exceptions.CordaRuntimeException
 import java.time.Duration
 import java.time.Instant
 
-data class WithdrawDigitalCurrency(val quantity: Int)
+data class WithdrawDigitalCurrency(val quantity: Double)
 
 @InitiatingFlow(protocol = "finalize-withdraw-digital-currency-protocol")
 class WithdrawDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {

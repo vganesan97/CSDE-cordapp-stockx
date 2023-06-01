@@ -1,7 +1,7 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
+import CoinSelection
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.DigitalCurrencyContract
-import com.r3.developers.csdetemplate.digitalcurrency.helpers.CoinSelection
 import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import net.corda.v5.application.flows.*
 import net.corda.v5.application.messaging.FlowSession
@@ -11,7 +11,7 @@ import net.corda.v5.base.types.MemberX500Name
 import java.time.Duration
 import java.time.Instant
 
-data class TransferDigitalCurrency(val quantity: Int, val toHolder: String)
+data class TransferDigitalCurrency(val quantity: Double, val toHolder: String)
 
 @InitiatingFlow(protocol = "finalize-transfer-digital-currency-protocol")
 class TransferDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {

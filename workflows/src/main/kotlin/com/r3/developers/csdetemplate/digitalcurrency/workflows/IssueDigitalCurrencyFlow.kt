@@ -11,7 +11,7 @@ import java.security.PublicKey
 import java.time.Duration
 import java.time.Instant
 
-data class IssueDigitalCurrency(val quantity: Int, val holder: String)
+data class IssueDigitalCurrency(val quantity: Double, val holder: String)
 
 @InitiatingFlow(protocol = "finalize-issue-digital-currency-protocol")
 class IssueDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {

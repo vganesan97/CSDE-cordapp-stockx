@@ -1,8 +1,8 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
+import CoinSelection
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.DigitalCurrencyContract
 import com.r3.developers.csdetemplate.digitalcurrency.contracts.ProductContract
-import com.r3.developers.csdetemplate.digitalcurrency.helpers.CoinSelection
 import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import com.r3.developers.csdetemplate.digitalcurrency.states.Product
 import com.r3.developers.csdetemplate.digitalcurrency.workflows.AbstractFlow.Companion.logger

@@ -12,7 +12,7 @@ import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.utxo.UtxoLedgerService
 import org.slf4j.LoggerFactory
 
-data class DigitalCurrencyStateResults(val quantity: Int, val holder: MemberX500Name)
+data class DigitalCurrencyStateResults(val quantity: Double, val holder: MemberX500Name)
 
 class ListDigitalCurrencyFlow : ClientStartableFlow {
     private companion object {

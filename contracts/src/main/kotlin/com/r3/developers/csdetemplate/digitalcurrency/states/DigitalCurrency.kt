@@ -8,20 +8,20 @@ import java.security.PublicKey
 
 @BelongsToContract(DigitalCurrencyContract::class)
 data class DigitalCurrency(
-    val quantity: Int,
+    val quantity: Double,
     val holder: PublicKey,
     private val participants: List<PublicKey>) : ContractState {
     override fun getParticipants(): List<PublicKey> {
         return listOf(holder)
     }
 
-    fun sendAmount(send: Int) =
+    fun sendAmount(send: Double) =
         copy(quantity = send)
 
     fun sendTo(newHolder: PublicKey) =
         copy(holder = newHolder)
 
-    fun sendAmountTo(send: Int, newHolder: PublicKey) =
+    fun sendAmountTo(send: Double, newHolder: PublicKey) =
         copy(quantity = send, holder = newHolder)
 
 }

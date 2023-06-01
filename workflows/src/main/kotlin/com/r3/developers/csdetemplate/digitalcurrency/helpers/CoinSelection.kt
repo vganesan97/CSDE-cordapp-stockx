@@ -1,49 +1,39 @@
-package com.r3.developers.csdetemplate.digitalcurrency.helpers
-
 import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import net.corda.v5.base.exceptions.CordaRuntimeException
-import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.utxo.StateAndRef
-import java.lang.reflect.Member
 import java.security.PublicKey
 
 class CoinSelection @JvmOverloads constructor() {
 
-    fun selectTokensForTransfer(quantity: Int,
+    fun selectTokensForTransfer(quantity: Double,
                                 sender: PublicKey,
                                 recipient: PublicKey,
                                 availableTokens: List<StateAndRef<DigitalCurrency>>):
             Pair<List<StateAndRef<DigitalCurrency>>, List<DigitalCurrency>> {
-        // Simple (unoptimized) coin selection for learning purposes only
-        // Send the rest of the other coins to receiver
-        // Ignoring opportunity to merge currency
-        val (amountSpent, selectedTokens) = selectTokens(quantity, availableTokens)
+         val (amountSpent, selectedTokens) = selectTokens(quantity, availableTokens)
         val spentCurrency = selectedTokens.map {
             it.state.contractState.sendTo(recipient)
         }.toMutableList()
 
-        // Send change back to sender
         if(amountSpent > quantity) {
             val overspend = amountSpent - quantity
-            val change = spentCurrency.removeLast() //blindly turn last token into change
-            spentCurrency.add(change.sendAmountTo(overspend, sender)) //change stays with sender
+            val change = spentCurrency.removeLast()
+            spentCurrency.add(change.sendAmountTo(overspend, sender))
             spentCurrency.add(change.sendAmount(change.quantity-overspend))
         }
-
 
         return Pair(selectedTokens, spentCurrency)
     }
 
-    fun selectTokensForRedemption(quantity: Int,
-                                availableTokens: List<StateAndRef<DigitalCurrency>>):
+    fun selectTokensForRedemption(quantity: Double,
+                                  availableTokens: List<StateAndRef<DigitalCurrency>>):
             Pair<List<StateAndRef<DigitalCurrency>>, DigitalCurrency?> {
         val (amountSpent, currencyToWithdraw) = selectTokens(quantity, availableTokens)
 
-        // Send change back to sender
         val remainingCurrency = if (amountSpent > quantity) {
             val change = amountSpent - quantity
-            val lastDigitalCurrency = currencyToWithdraw.last() //blindly turn last token into change
-            lastDigitalCurrency.state.contractState.sendAmount(change) //change stays with sender
+            val lastDigitalCurrency = currencyToWithdraw.last()
+            lastDigitalCurrency.state.contractState.sendAmount(change)
         } else {
             null
         }
@@ -51,11 +41,11 @@ class CoinSelection @JvmOverloads constructor() {
         return Pair(currencyToWithdraw, remainingCurrency)
     }
 
-    private fun selectTokens(quantity: Int,
+    private fun selectTokens(quantity: Double,
                              availableTokens: List<StateAndRef<DigitalCurrency>>)
-                            : Pair<Int, List<StateAndRef<DigitalCurrency>>> {
+            : Pair<Double, List<StateAndRef<DigitalCurrency>>> {
         val selectedTokens = mutableListOf<StateAndRef<DigitalCurrency>>()
-        var amountSpent = 0
+        var amountSpent = 0.0
         for (token in availableTokens) {
             selectedTokens += token
             amountSpent += token.state.contractState.quantity
