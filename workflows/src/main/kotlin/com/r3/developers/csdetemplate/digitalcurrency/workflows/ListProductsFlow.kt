@@ -1,6 +1,7 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
 import com.r3.developers.csdetemplate.digitalcurrency.helpers.findInfo
+import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import com.r3.developers.csdetemplate.digitalcurrency.states.Mortgage
 import com.r3.developers.csdetemplate.digitalcurrency.states.Product
 import net.corda.v5.application.flows.ClientRequestBody
@@ -47,6 +48,7 @@ class ListProductsFlow: ClientStartableFlow {
 
         log.warn("all member info: ${memberLookup.lookup().map{it.name.toString()}}")
         val states = ledgerService.findUnconsumedStatesByType(Product::class.java)
+        
 
         val results = states.map {
             ProductsStateResults(

@@ -48,26 +48,55 @@ class ApproveSaleRequestFlow: AbstractFlow(), ClientStartableFlow {
                 .addSignatories(listOf(approver.ledgerKeys.first()))
 
             // Sign and finalize the transaction
+//            val signedTransaction = txBuilder.toSignedTransaction()
+//            val sessions = saleRequest.participants.map { memberLookup.findInfo(it) }.map { flowMessaging.initiateFlow(it.name) }
+//            val finalizedSignedTransaction = ledgerService.finalize(
+//                signedTransaction,
+//                sessions
+//            )
+//
+//            // After finalizing the transaction which approves the sale request,
+//            // run the SellProductFlow to handle the product sale and token transfers
+//            // Assuming SellProductFlow accepts the product id as an argument
+//
+//            flowEngine.subFlow(SellProductSubFlow(
+//                saleRequest.productId,
+//                saleRequest.buyer,
+//                saleRequest.price
+//            ))
+//
+//            return finalizedSignedTransaction.transaction.id.toString().also {
+//                logger.info("Successful SaleRequest with response: $it")
+//            }
+
+            // Sign the transaction
             val signedTransaction = txBuilder.toSignedTransaction()
-            val sessions = saleRequest.participants.map { memberLookup.findInfo(it) }.map { flowMessaging.initiateFlow(it.name) }
+
+            // Assuming SellProductSubFlow accepts the product id as an argument
+            try {
+                flowEngine.subFlow(SellProductSubFlow(
+                    saleRequest.productId,
+                    saleRequest.buyer,
+                    saleRequest.price
+                ))
+            } catch (e: Exception) {
+                throw CordaRuntimeException("SellProductSubFlow failed.", e)
+            }
+
+            // If the subflow succeeded, finalize the transaction
+            val sessions = saleRequest.participants
+                .map { memberLookup.findInfo(it) }
+                .map { flowMessaging.initiateFlow(it.name) }
+
             val finalizedSignedTransaction = ledgerService.finalize(
                 signedTransaction,
                 sessions
             )
 
-            // After finalizing the transaction which approves the sale request,
-            // run the SellProductFlow to handle the product sale and token transfers
-            // Assuming SellProductFlow accepts the product id as an argument
-
-            flowEngine.subFlow(SellProductSubFlow(
-                saleRequest.productId,
-                saleRequest.buyer,
-                saleRequest.price
-            ))
-
             return finalizedSignedTransaction.transaction.id.toString().also {
                 logger.info("Successful SaleRequest with response: $it")
             }
+
         } catch (e: Exception) {
             logger.warn("Failed to process sale request for request body '$requestBody' with exception: '${e.message}'")
             throw e

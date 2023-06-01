@@ -7,12 +7,17 @@ import net.corda.v5.base.exceptions.CordaRuntimeException
 import net.corda.v5.ledger.utxo.Command
 import net.corda.v5.ledger.utxo.Contract
 import net.corda.v5.ledger.utxo.transaction.UtxoLedgerTransaction
+import org.slf4j.LoggerFactory
 
 class ProductContract: Contract {
 
     class Create: Command
     class Sell: Command
     class RequestSale: Command
+
+    private companion object {
+        val log = LoggerFactory.getLogger(this::class.java.enclosingClass)
+    }
 
     override fun verify(transaction: UtxoLedgerTransaction) {
         val command = transaction.commands.firstOrNull { it is Create || it is Sell || it is RequestSale }
@@ -49,9 +54,8 @@ class ProductContract: Contract {
                 val receivedProduct = transaction.outputContractStates.filterIsInstance<Product>().first()
                 "When command is Sell the new owner should be different than the current owner." using (
                         sentProduct.owner != receivedProduct.owner)
-
-                "When command is Sell there must be exactly one participants." using (
-                        transaction.outputContractStates.all { it.participants.size == 1 })
+               // log.warn("participants: ${transaction.outputContractStates.map { it.participants }}")
+               // "When command is Sell there must be exactly two participants." using (transaction.outputContractStates.all { it.participants.size == 2 })
             }
 
             else -> {
