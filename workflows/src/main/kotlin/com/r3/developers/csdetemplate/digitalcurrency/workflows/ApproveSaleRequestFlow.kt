@@ -11,7 +11,9 @@ import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
-data class ApproveSaleRequest(val productId: UUID)
+data class ApproveSaleRequest(
+    val productId: UUID,
+    val saleRequestId: UUID)
 
 @InitiatingFlow(protocol = "approve-sale-request-protocol")
 class ApproveSaleRequestFlow: AbstractFlow(), ClientStartableFlow {
@@ -25,8 +27,10 @@ class ApproveSaleRequestFlow: AbstractFlow(), ClientStartableFlow {
 
             // Find the SaleRequest by saleRequestId
             val saleRequestStateAndRef = ledgerService.findUnconsumedStatesByType(SaleRequest::class.java)
-                .find { it.state.contractState.productId == flowArgs.productId }
-                ?: throw CordaRuntimeException("SaleRequest not found")
+                .find {
+                    it.state.contractState.productId == flowArgs.productId &&
+                    it.state.contractState.saleRequestId == flowArgs.saleRequestId
+                } ?: throw CordaRuntimeException("SaleRequest not found")
 
             val saleRequest = saleRequestStateAndRef.state.contractState
 
@@ -46,28 +50,6 @@ class ApproveSaleRequestFlow: AbstractFlow(), ClientStartableFlow {
                 .addCommand(SaleRequestContract.Accept())
                 .addOutputState(saleRequest.copy(accepted = true))
                 .addSignatories(listOf(approver.ledgerKeys.first()))
-
-            // Sign and finalize the transaction
-//            val signedTransaction = txBuilder.toSignedTransaction()
-//            val sessions = saleRequest.participants.map { memberLookup.findInfo(it) }.map { flowMessaging.initiateFlow(it.name) }
-//            val finalizedSignedTransaction = ledgerService.finalize(
-//                signedTransaction,
-//                sessions
-//            )
-//
-//            // After finalizing the transaction which approves the sale request,
-//            // run the SellProductFlow to handle the product sale and token transfers
-//            // Assuming SellProductFlow accepts the product id as an argument
-//
-//            flowEngine.subFlow(SellProductSubFlow(
-//                saleRequest.productId,
-//                saleRequest.buyer,
-//                saleRequest.price
-//            ))
-//
-//            return finalizedSignedTransaction.transaction.id.toString().also {
-//                logger.info("Successful SaleRequest with response: $it")
-//            }
 
             // Sign the transaction
             val signedTransaction = txBuilder.toSignedTransaction()

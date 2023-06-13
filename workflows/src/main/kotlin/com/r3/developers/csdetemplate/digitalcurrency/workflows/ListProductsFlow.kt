@@ -1,5 +1,6 @@
 package com.r3.developers.csdetemplate.digitalcurrency.workflows
 
+import com.r3.developers.csdetemplate.digitalcurrency.contracts.ProductContract
 import com.r3.developers.csdetemplate.digitalcurrency.helpers.findInfo
 import com.r3.developers.csdetemplate.digitalcurrency.states.DigitalCurrency
 import com.r3.developers.csdetemplate.digitalcurrency.states.Mortgage
@@ -20,6 +21,8 @@ data class ProductsStateResults(val productId: UUID,
                                 val listingDetails: String,
                                 val owner: MemberX500Name,
                                 val price: Double,
+                                val forAuction: Boolean,
+                                val saleRequested: Boolean,
                                 val name: String)
 class ListProductsFlow: ClientStartableFlow {
 
@@ -48,7 +51,7 @@ class ListProductsFlow: ClientStartableFlow {
 
         log.warn("all member info: ${memberLookup.lookup().map{it.name.toString()}}")
         val states = ledgerService.findUnconsumedStatesByType(Product::class.java)
-        
+
 
         val results = states.map {
             ProductsStateResults(
@@ -57,6 +60,8 @@ class ListProductsFlow: ClientStartableFlow {
                 it.state.contractState.listingDetails,
                 memberLookup.findInfo(it.state.contractState.owner).name,
                 it.state.contractState.price,
+                it.state.contractState.forAuction,
+                it.state.contractState.saleRequested,
                 it.state.contractState.name
             )
         }

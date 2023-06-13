@@ -15,6 +15,7 @@ data class Product (
     val condition: String,
     val price: Double,
     val saleRequested: Boolean = false,
+    val forAuction: Boolean = false,
     private val participants: List<PublicKey>) : ContractState {
     override fun getParticipants(): List<PublicKey> {
         return participants
@@ -22,5 +23,6 @@ data class Product (
 
     fun newOwner(newOwner: PublicKey) =
         copy(owner = newOwner)
+
 
 }

@@ -23,7 +23,7 @@ class WithdrawDigitalCurrencyFlow: AbstractFlow(), ClientStartableFlow {
             val flowArgs = requestBody.getRequestBodyAs(json, WithdrawDigitalCurrency::class.java)
 
             if(flowArgs.quantity <= 0) {
-                throw CordaRuntimeException("Must withdrawl a positive amount of currency.")
+                throw CordaRuntimeException("Must withdraw a positive amount of currency.")
             }
 
             val fromHolder = memberLookup.myInfo()

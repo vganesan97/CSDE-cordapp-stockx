@@ -15,6 +15,7 @@ import java.security.PublicKey
 import java.util.UUID
 
 data class SaleRequestResults(
+    val saleRequestId: UUID,
     val productId: UUID,
     val price: Double,
     val buyer: MemberX500Name,
@@ -48,6 +49,7 @@ class ListSaleRequestsFlow: ClientStartableFlow {
 
         val results = states.map {
             SaleRequestResults(
+                it.state.contractState.saleRequestId,
                 it.state.contractState.productId,
                 it.state.contractState.price,
                 memberLookup.findInfo(it.state.contractState.buyer).name,

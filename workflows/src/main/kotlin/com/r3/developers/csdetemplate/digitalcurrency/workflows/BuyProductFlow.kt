@@ -35,6 +35,7 @@ class BuyProductFlow: AbstractFlow(), ClientStartableFlow {
             val updatedProduct = product.copy(saleRequested = true)
 
             val saleRequest = SaleRequest(
+                saleRequestId = UUID.randomUUID(),
                 product.productId,
                 product.price,
                 buyer.ledgerKeys.first(),
@@ -54,7 +55,7 @@ class BuyProductFlow: AbstractFlow(), ClientStartableFlow {
                 .addOutputState(saleRequest)
                 .addOutputState(updatedProduct)
                 .addCommand(SaleRequestContract.Create())
-                .addCommand(ProductContract.RequestSale())
+                .addCommand(ProductContract.AcceptRequestSale())
                 .addSignatories(signatories)
 
             val owner = memberLookup.findInfo(product.owner)

@@ -9,6 +9,7 @@ import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Public
 
 @BelongsToContract(SaleRequestContract::class)
 data class SaleRequest(
+    val saleRequestId: UUID,
     val productId: UUID,
     val price: Double,
     val buyer: PublicKey,
